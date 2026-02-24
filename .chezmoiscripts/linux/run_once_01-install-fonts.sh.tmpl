@@ -1,0 +1,15 @@
+{{ if (and (eq .chezmoi.os "linux") (not .is_wsl)) -}}
+#!/bin/bash
+
+# Fonts and the font folder
+FONT_NAMES = ("ttf-jetbrains-mono-nerd")
+
+echo "Installing the following fonts: ${FONT_NAMES[@]}"
+sudo pacman -S "${FONT_NAMES[@]}"
+
+echo "Updating font cache"
+fc-cache -fv
+
+echo "Fonts installed successfully"
+
+{{ end -}}

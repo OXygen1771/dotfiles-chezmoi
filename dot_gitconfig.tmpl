@@ -36,5 +36,13 @@
     helper = cache
     {{- end }}
 
+{{ if .gitlfs.enabled -}}
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+{{- end }}
+
 # [include]
 #     path = ~/.gitconfig.local

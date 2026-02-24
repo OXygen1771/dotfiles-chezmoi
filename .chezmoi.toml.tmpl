@@ -1,6 +1,7 @@
 {{/* Base prompts */}}
 {{- $email := promptStringOnce . "email" "Email address" -}}
 {{- $username := promptStringOnce . "username" "Username" -}}
+{{- $useGitLFS := promptBoolOnce . "useGitLFS" "Use Git LFS" -}}
 
 {{/* OS detection */}}
 {{- $osid := .chezmoi.os -}}
@@ -48,6 +49,9 @@
     gcm_path = {{ $gcm_path | quote }}
 
     # has_gui = {{ if or (eq .chezmoi.os "windows") (and (eq .chezmoi.os "linux") (not $is_wsl)) }} true {{ else }} false {{ end }}
+
+    # Git LFS
+    gitlfs.enabled = {{ $useGitLFS }}
 
 ###############
 ### CHEZMOI ###
