@@ -1,0 +1,40 @@
+[user]
+    name = {{ .username }}
+    email = {{ .email }}
+    signingkey = ~/.ssh/id_ed25519.pub
+
+[gpg]
+    format = ssh
+
+[commit]
+    gpgsign = true
+
+[tag]
+    gpgsign = true
+
+[init]
+    defaultBranch = master
+
+[core]
+    autocrlf = {{ if eq .chezmoi.os "windows" }} true {{ else }} input {{ end }}
+    {{- if .is_wsl }}
+    sshCommand = ssh.exe
+    {{- end }}
+
+[credential]
+    {{- if eq .chezmoi.os "windows" }}
+    helper = manager
+    {{- else if .is_wsl }}
+        {{- if .gcm_path }}
+    # Found relative to git.exe
+    helper = {{ .gcm_path | quote | replace " " "\\ " }}
+    	{{- else }}
+    # GCM not found. Using WSL cache
+    helper = cache
+    	{{- end }}
+    {{- else }}
+    helper = cache
+    {{- end }}
+
+# [include]
+#     path = ~/.gitconfig.local

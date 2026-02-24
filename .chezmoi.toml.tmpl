@@ -1,6 +1,55 @@
+{{/* Base prompts */}}
 {{- $email := promptStringOnce . "email" "Email address" -}}
-{{- $firstname := promptStringOnce . "firstname" "First name" -}}
+{{- $username := promptStringOnce . "username" "Username" -}}
 
+{{/* OS detection */}}
+{{- $osid := .chezmoi.os -}}
+{{- if hasKey .chezmoi "osRelease" -}}
+    {{- $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+{{- end -}}
+
+{{/* WSL detection */}}
+{{- $is_wsl := false -}}
+{{- if (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
+    {{- $is_wsl = true -}}
+    {{- writeToStdout "Running on WSL. GUI applications will not be installed and/or set up.\n" -}}
+{{- end -}}
+
+{{/* Git Credential Manager for WSL */}}
+{{- $gcm_path := "" -}}
+{{- if $is_wsl -}}
+    {{- $win_git_exe := output "sh" "-c" "cmd.exe /c 'where git.exe' 2>/dev/null | head -n 1" | trim -}}
+    {{- if $win_git_exe -}}
+        {{- $git_path_wsl := output "wslpath" "-u" $win_git_exe | trim -}}
+	{{- $potential_gcm_path := printf "%s/../mingw64/bin/git-credential-manager.exe" (dir $git_path_wsl) -}}
+	{{- if (stat $potential_gcm_path) -}}
+	    {{- $gcm_path = $potential_gcm_path -}}
+	    {{- writeToStdout "Using Windows Git Credential manager at " $gcm_path "\n" -}}
+	{{- end -}}
+    {{- end -}}
+{{- end -}}
+
+
+############
+### DATA ###
+############
+
+# queries are at the top of the file
 [data]
+    # User data
     email = {{ $email | quote }}
-    firstname = {{ $firstname | quote }}
+    username = {{ $username | quote }}
+
+    # OS data
+    osid = {{ $osid | quote }}
+
+    # WSL-specific
+    is_wsl = {{ $is_wsl }}
+    gcm_path = {{ $gcm_path | quote }}
+
+    # has_gui = {{ if or (eq .chezmoi.os "windows") (and (eq .chezmoi.os "linux") (not $is_wsl)) }} true {{ else }} false {{ end }}
+
+###############
+### CHEZMOI ###
+###############
+progress = true
