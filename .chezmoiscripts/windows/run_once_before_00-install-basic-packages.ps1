@@ -5,4 +5,12 @@ foreach ($app_id in $apps_winget)
 }
 
 # Install uv
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+if (Get-Command uv -ErrorAction SilentlyContinue)
+{
+    Write-Host "uv already installed! Updating it..." -ForegroundColor Green
+    uv self update
+}
+else
+{
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+}
