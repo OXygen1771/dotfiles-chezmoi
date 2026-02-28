@@ -17,9 +17,6 @@
 
 [core]
     autocrlf = {{ if eq .chezmoi.os "windows" }} true {{ else }} input {{ end }}
-    {{- if .is_wsl }}
-    sshCommand = ssh.exe
-    {{- end }}
 
 [credential]
     {{- if eq .chezmoi.os "windows" }}
