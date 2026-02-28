@@ -75,7 +75,7 @@
     {{- /* should be enough to check if an app is installed on Linux */ -}}
     {{- if (lookPath $app.bin) -}}
         {{- $is_installed = true -}}
-    {{- else if eq .chezmoi.os "windows" -}}
+    {{- else if eq $.chezmoi.os "windows" -}}
         {{- /* Check if app is installed using where.exe */ -}}
         {{- /* Check PATH, winget, Program Files, C:\Programs, D:\Programs paths */ -}}
         {{- $win_search_roots := list

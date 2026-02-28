@@ -36,6 +36,7 @@ if (Get-Command uvx -ErrorAction SilentlyContinue)
 
 # Git
 function Git-LogADog { git log --all --decorate --oneline --graph $args }
+Remove-Item -Force Alias:gl
 Set-Alias gl Git-LogADog
 
 function Git-Status { git status -bs $args }
@@ -43,8 +44,9 @@ Set-Alias gs Git-Status
 
 {{ if (index $apps "eza").is_installed -}}
 # eza
-function Eza { eza --grid --classify=always --colour=always --icons=always --hyperlink -a -b $args }
-Set-Alias eza Eza
+function Eza-Cmd { eza.exe --grid --classify=always --colour=always --icons=always --hyperlink -a -b $args }
+Set-Alias eza Eza-Cmd
+Set-Alias ls eza
 {{- end }}
 
 
