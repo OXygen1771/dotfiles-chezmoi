@@ -40,14 +40,30 @@
 -}}
 {{/* Linux apps */}}
 {{- if eq .chezmoi.os "linux" -}}
-    {{- $_ := set $apps "fish"     (dict "bin" "fish"     "pkg" "fish") -}}
+    {{- $apps_linux := dict 
+    "fish"     (dict "bin" "fish"     "pkg" "fish")
+    -}}
+    {{- range $k, $v := $apps_linux -}}
+        {{- $_ := set $apps $k $v -}}
+    {{- end -}}
 {{- end -}}
 {{/* Linux apps (non-WSL) */}}
 {{- if (and (eq .chezmoi.os "linux") (not $is_wsl)) -}}
+    {{- $apps_linux_non_wsl := dict 
+    -}}
+    {{- range $k, $v := $apps_linux_non_wsl -}}
+        {{- $_ := set $apps $k $v -}}
+    {{- end -}}
 {{- end -}}
 
 {{/* Windows apps */}}
 {{- if eq .chezmoi.os "windows" -}}
+    {{- $apps_windows := dict 
+    "less"     (dict "bin" "less" "winget" "jftuga.less" "win_patterns" (list "less.exe" "lesskey.exe"))
+    -}}
+    {{- range $k, $v := $apps_windows -}}
+        {{- $_ := set $apps $k $v -}}
+    {{- end -}}
 {{- end -}}
 
 {{/* Interactive app selection */}}

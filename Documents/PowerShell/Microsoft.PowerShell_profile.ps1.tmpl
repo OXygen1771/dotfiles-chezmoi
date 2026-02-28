@@ -1,0 +1,71 @@
+{{- if eq .chezmoi.os "windows" -}}
+
+{{- $apps := .apps | fromJson -}}
+
+# MUST be the at the top of the file
+using namespace System.Management.Automation
+using namespace System.Management.Automation.Language
+
+
+### Environment variables
+{{ if (index $apps "bat").is_installed -}}
+if (Get-Command bat -ErrorAction SilentlyContinue)
+{
+    $env:PAGER = "bat"
+}
+{{- end }}
+
+
+### Integrations
+
+{{ if (index $apps "uv").is_installed -}}
+# set up uv
+if (Get-Command uv -ErrorAction SilentlyContinue)
+{
+    uv generate-shell-completion powershell | Out-String | Invoke-Expression
+}
+# ... and uvx
+if (Get-Command uvx -ErrorAction SilentlyContinue)
+{
+    uvx --generate-shell-completion powershell | Out-String | Invoke-Expression
+}
+{{- end }}
+
+
+### Aliases
+
+# Git
+function Git-LogADog { git log --all --decorate --oneline --graph $args }
+Set-Alias gl Git-LogADog
+
+function Git-Status { git status -bs $args }
+Set-Alias gs Git-Status
+
+{{ if (index $apps "eza").is_installed -}}
+# eza
+function Eza { eza --grid --classify=always --colour=always --icons=always --hyperlink -a -b $args }
+Set-Alias eza Eza
+{{- end }}
+
+
+{{/* starship integration MUST be at the bottom of the file */}}
+{{ if (index $apps "starship").is_installed -}}
+# starship integration MUST be at the bottom of the file
+# set up starship
+if (Get-Command starship -ErrorAction SilentlyContinue)
+{
+    Invoke-Expression (& starship init powershell)
+}
+{{- end }}
+
+{{/* zoxide integration MUST be at the bottom of the file */}}
+{{ if (index $apps "zoxide").is_installed -}}
+# zoxide integration MUST be at the bottom of the file
+# set up zoxide
+if (Get-Command zoxide -ErrorAction SilentlyContinue)
+{
+    zoxide init powershell | Out-String | Invoke-Expression
+}
+{{- end }}
+
+{{- end -}}

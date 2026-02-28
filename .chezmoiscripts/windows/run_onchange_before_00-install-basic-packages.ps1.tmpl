@@ -44,3 +44,5 @@ function Log-Error ($msg) { Write-Host "[ERROR] $msg" -ForegroundColor Red }
 {{ end -}}
 
 Log-Success "All apps installed/updated successfully!"
+
+Log-Warn "Don't forget to restart your shell, its configuration may have updated!"
