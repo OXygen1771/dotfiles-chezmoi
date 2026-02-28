@@ -1,22 +1,118 @@
+#########################
+### USER-CONFIGURABLE ###
+#########################
+
+# there shouldn't be anything in the target .toml, it's all templates!
 {{/* Base prompts */}}
 {{- $email := promptStringOnce . "email" "Email address" -}}
 {{- $username := promptStringOnce . "username" "Username" -}}
-{{- $useGitLFS := promptBoolOnce . "useGitLFS" "Use Git LFS" -}}
 
-{{/* OS detection */}}
+{{/* OS & WSL detection */}}
 {{- $osid := .chezmoi.os -}}
 {{- if (and (hasKey .chezmoi "osRelease") (hasKey .chezmoi.osRelease "id")) -}}
     {{- $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+    {{- writeToStdout (printf "OS detected as %s\n" $osid) -}}
 {{- end -}}
-
-{{/* WSL detection */}}
-{{- $is_wsl := false -}}
-{{- if (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
-    {{- $is_wsl = true -}}
+{{- $is_wsl := (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
+{{- if $is_wsl -}}
     {{- writeToStdout "Running on WSL. GUI applications will not be installed and/or set up.\n" -}}
 {{- end -}}
 
-{{/* Git Credential Manager for WSL */}}
+
+{{- /* Apps to install 
+     * dict: key is application name, value is a dict where:
+     * "bin" - name of the binary (used to check if the program is already installed)
+     * "pkg" - pacman package name, "winget" - winget package name
+     * "win_patterns" - glob patterns for Windows binaries and paths
+     * if "pkg" and "winget" are not provided, install and update scripts may be provided instead
+*/ -}}
+{{/* Common apps */}}
+{{- $apps := dict
+    "uv"       (dict "bin" "uv" "install_linux" "curl -LsSf https://astral.sh/uv/install.sh | sh" "install_windows" "powershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\"" "update_linux" "uv self update" "update_windows" "uv self update" "win_patterns" (list ".cargo/bin/uv.exe" ".local/bin/uv.exe") )
+
+    "neovim"   (dict "bin" "nvim"     "pkg" "neovim"   "winget" "Neovim.Neovim"     "win_patterns" (list "*eovim/bin/nvim.exe" "nvim-win64/bin/nvim.exe") )
+    "starship" (dict "bin" "starship" "pkg" "starship" "winget" "Starship.Starship" "win_patterns" (list "*tarship/bin/starship.exe" "starship.exe") )
+    "git-lfs"  (dict "bin" "git-lfs"  "pkg" "git-lfs"  "winget" "GitHub.GitLFS"     "win_patterns" (list "Git LFS/git-lfs.exe" "Git/cmd/git-lfs.exe") )
+-}}
+{{/* Linux apps */}}
+{{- if eq .chezmoi.os "linux" -}}
+    {{- $_ := set $apps "fish"     (dict "bin" "fish"     "pkg" "fish") -}}
+{{- end -}}
+{{/* Linux apps (non-WSL) */}}
+{{- if (and (eq .chezmoi.os "linux") (not $is_wsl)) -}}
+{{- end -}}
+
+{{/* Windows apps */}}
+{{- if eq .chezmoi.os "windows" -}}
+{{- end -}}
+
+{{/* Interactive app selection */}}
+{{- $final_apps := dict -}}
+{{- range $id, $app := $apps -}}
+    {{- $is_installed := false -}}
+    {{- $installed_path := "" -}}
+
+    {{- /* should be enough to check if an app is installed on Linux */ -}}
+    {{- if (lookPath $app.bin) -}}
+        {{- $is_installed = true -}}
+    {{- else if eq .chezmoi.os "windows" -}}
+        {{- /* Check if app is installed using where.exe */ -}}
+        {{- /* Check PATH, winget, Program Files, C:\Programs, D:\Programs paths */ -}}
+        {{- $win_search_roots := list
+	    (printf "%s/AppData/Local/Microsoft/WinGet/Links/%s.exe" $.chezmoi.homeDir $app.bin)
+	    "C:/Program Files"
+	    "C:/Program Files (x86)"
+	    $.chezmoi.homeDir
+	    (printf "%s/.local" $.chezmoi.homeDir)
+     	    "C:/Programs"
+	    "D:/Programs"
+	-}}
+	{{- range $root := $win_search_roots -}}
+	    {{- if not $is_installed -}}
+	        {{- range $pattern := (index $app "win_patterns") -}}
+		    {{- $matches := glob (printf "%s/%s" $root $pattern) -}}
+		    {{- if $matches -}}
+		        {{- $is_installed = true -}}
+			{{- $installed_path = index $matches 0 -}}
+			{{- break -}}
+		    {{- end -}}
+		{{- end -}}
+	    {{- end -}}
+	{{- end -}}
+    {{- end -}}
+
+    {{- /* Prompt the user */ -}}
+    {{- $should_install := false -}}
+    {{- $should_update := false -}}
+
+    {{- if $is_installed -}}
+	{{- $status := "found in PATH" -}}
+        {{- if $installed_path -}}
+	    {{- $status = printf "found at %s" $installed_path -}}
+	{{- end -}}
+	{{- $msg := printf "App '%s' already exists (%s). Do you wish to UPDATE it?" $id $status -}}
+	{{- $should_update = promptBoolOnce $ (printf "update_%s" $id) $msg -}}
+    {{- else -}}
+        {{- $msg := printf "Install '%s'?" $id -}}
+	{{- $should_install = promptBoolOnce $ (printf "install_$s" $id) $msg -}}
+    {{- end -}}
+
+    {{- /* Collect all apps */ -}}
+    {{- $app_data := dict "install" $should_install "update" $should_update -}}
+    {{- range $k, $v := $app -}}
+        {{- if ($k | contains "win") -}}
+	    {{- if eq $.chezmoi.os "windows" -}}
+                {{- $_ := set $app_data $k $v -}}
+	    {{- end -}}
+	{{- else -}}
+	    {{- $_ := set $app_data $k $v -}}
+	{{- end -}}
+    {{- end -}}
+    {{- $_ := set $final_apps $id $app_data -}}
+{{- end -}}
+
+
+{{/* Git Credential Manager path for WSL */}}
 {{- $gcm_path := "" -}}
 {{- if $is_wsl -}}
     {{- $win_git_exe := output "sh" "-c" "cmd.exe /c 'where git.exe' 2>/dev/null | head -n 1" | trim -}}
@@ -50,8 +146,8 @@
 
     # has_gui = {{ if or (eq .chezmoi.os "windows") (and (eq .chezmoi.os "linux") (not $is_wsl)) }} true {{ else }} false {{ end }}
 
-    # Git LFS
-    gitlfs.enabled = {{ $useGitLFS }}
+    # Applications
+    apps = {{ $final_apps | toJson | quote }}
 
 ###############
 ### CHEZMOI ###

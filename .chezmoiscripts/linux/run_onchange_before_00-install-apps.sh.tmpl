@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Colorize output
+set_colors()
+{
+    if [ -t 1 ]; then
+        RED='\033[0;31m'
+        GREEN='\033[0;32m'
+        YELLOW='\033[1;33m'
+        BLUE='\033[0;34m'
+        NC='\033[0m'
+    else
+        RED=''
+        GREEN=''
+        YELLOW=''
+        BLUE=''
+        NC=''
+    fi
+}
+set_colors
+
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+log_err() { echo -e "${RED}[ERROR]${NC} $1"; }
+
+{{ $apps := .apps | fromJson -}}
+PKG_TO_INSTALL=()  # packages for pacman
+
+# Updating and installing apps one-by-one
+{{ range $id, $app := $apps -}}
+# --- {{ $id }}
+{{ if $app.update -}}
+    {{ if hasKey $app "update_linux" -}}
+        log_info "Updating {{ $id }} via its custom command:"
+	log_info "{{ $app.update_linux }}"
+	{{ $app.update_linux }}
+	log_success "{{ $id }} updated successfully!"
+    {{ else if hasKey $app "pkg" -}}
+        PKG_TO_INSTALL+=("{{ $app.pkg }}")
+    {{ end -}}
+{{ else if $app.install -}}
+    {{/* The app might be installed already! */}}
+    {{ if hasKey $app "install_linux" -}}
+        # Check if it is already installed
+	if ! command -v {{ $app.bin }} &> /dev/null; then
+	    log_info "Installing {{ $id }} via its custom command:"
+	    log_info "{{ $app.install_linux }}"
+	    log_success "{{ $id }} installed successfully!"
+	else
+	    log_info "Found {{ $id }}, skipping install"
+	fi
+    {{ else if hasKey $app "pkg" -}}
+        if ! pacman -Qq {{ $app.pkg }} &> /dev/null; then
+            PKG_TO_INSTALL+=("{{ $app.pkg }}")
+	fi
+    {{ end -}}
+{{ end -}}
+
+{{ end -}}
+
+
+# pacman package installation
+if [ ${#PKG_TO_INSTALL[@]} -gt 0 ]; then
+    log_info "Installing/Updating via pacman: ${PKG_TO_INSTALL[*]}"
+    sudo pacman -S --needed "${PKG_TO_INSTALL[@]}"
+fi
+
+log_success "All apps installed/updated successfully!"
