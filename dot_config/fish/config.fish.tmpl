@@ -1,0 +1,49 @@
+{{- $apps := .apps | fromJson -}}
+
+set -g fish_greeting "Hello, sir! Have a good one!"
+
+# Login shell
+if status is-login
+end
+
+# Interactive shells
+if status is-interactive
+    {{ if .is_wsl -}}
+    # Fix GPG pinentry on WSL
+    eval gpg-connect-agent updatestartuptty /bye >/dev/null
+    {{- end }}
+
+    {{ if (index $apps "uv").is_installed -}}
+    # set up uv
+    if command -q uv
+        echo 'uv generate-shell-completion fish | source' > ~/.config/fish/completions/uv.fish
+    end
+    # ... and uvx
+    if command -q uvx
+        echo 'uvx --generate-shell-completions fish | source' > ~/.config/fish/completions/uvx.fish
+    end
+    {{- end }}
+
+    {{ if (index $apps "fzf").is_installed -}}
+    #set up fzf
+    if command -q fzf
+        fzf --fish | source
+	# TODO: add fzfrc
+        # source ~/.config/fzf/.fzfrc
+    end
+    {{- end }}
+
+    {{ if (index $apps "zoxide").is_installed -}}
+    #set up zoxide
+    if command -q zoxide
+        zoxide init fish | source
+    end
+    {{- end }}
+
+    {{ if (index $apps "starship").is_installed -}}
+    #set up starship
+    if command -q starship
+        starship init fish | source
+    end
+    {{- end }}
+end

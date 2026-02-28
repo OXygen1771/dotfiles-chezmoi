@@ -1,0 +1,12 @@
+if status is-interactive
+    {{ $apps := .apps | fromJson -}}
+
+    # Git
+    alias gl='git log --all --decorate --oneline --graph '
+    alias gs='git status -bs '
+
+    {{ if (index $apps "eza").is_installed -}}
+    # eza
+    alias eza='eza --grid --classify=always --colour=always --icons=always --hyperlink -a -b '
+    {{- end }}
+end

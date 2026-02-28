@@ -30,9 +30,13 @@
 {{- $apps := dict
     "uv"       (dict "bin" "uv" "install_linux" "curl -LsSf https://astral.sh/uv/install.sh | sh" "install_windows" "powershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\"" "update_linux" "uv self update" "update_windows" "uv self update" "win_patterns" (list ".cargo/bin/uv.exe" ".local/bin/uv.exe") )
 
-    "neovim"   (dict "bin" "nvim"     "pkg" "neovim"   "winget" "Neovim.Neovim"     "win_patterns" (list "*eovim/bin/nvim.exe" "nvim-win64/bin/nvim.exe") )
-    "starship" (dict "bin" "starship" "pkg" "starship" "winget" "Starship.Starship" "win_patterns" (list "*tarship/bin/starship.exe" "starship.exe") )
-    "git-lfs"  (dict "bin" "git-lfs"  "pkg" "git-lfs"  "winget" "GitHub.GitLFS"     "win_patterns" (list "Git LFS/git-lfs.exe" "Git/cmd/git-lfs.exe") )
+    "neovim"   (dict "bin" "nvim"     "pkg" "neovim"   "winget" "Neovim.Neovim"      "win_patterns" (list "*eovim/bin/nvim.exe" "nvim-win64/bin/nvim.exe") )
+    "starship" (dict "bin" "starship" "pkg" "starship" "winget" "Starship.Starship"  "win_patterns" (list "*tarship/bin/starship.exe" "starship.exe") )
+    "git-lfs"  (dict "bin" "git-lfs"  "pkg" "git-lfs"  "winget" "GitHub.GitLFS"      "win_patterns" (list "Git LFS/git-lfs.exe" "Git/cmd/git-lfs.exe") )
+    "bat"      (dict "bin" "bat"      "pkg" "bat"      "winget" "sharkdp.bat"        "win_patterns" (list "bat.exe") )
+    "zoxide"   (dict "bin" "zoxide"   "pkg" "zoxide"   "winget" "ajeetdsouza.zoxide" "win_patterns" (list "zoxide.exe") )
+    "fzf"      (dict "bin" "fzf"      "pkg" "fzf"      "winget" "junegunn.fzf"       "win_patterns" (list "fzf.exe") )
+    "eza"      (dict "bin" "eza"      "pkg" "eza"      "winget" "eza-community.eza"  "win_patterns" (list "eza.exe") )
 -}}
 {{/* Linux apps */}}
 {{- if eq .chezmoi.os "linux" -}}
@@ -98,7 +102,7 @@
     {{- end -}}
 
     {{- /* Collect all apps */ -}}
-    {{- $app_data := dict "install" $should_install "update" $should_update -}}
+    {{- $app_data := dict "is_installed" (or $is_installed $should_install) "install" $should_install "update" $should_update -}}
     {{- range $k, $v := $app -}}
         {{- if ($k | contains "win") -}}
 	    {{- if eq $.chezmoi.os "windows" -}}
