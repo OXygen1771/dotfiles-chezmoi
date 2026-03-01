@@ -1,9 +1,12 @@
 README.md
 
-# Ignore OS-specific scripts
+# Ignore non-linux stuff
 {{ if ne .chezmoi.os "linux" }}
 .chezmoiscripts/linux/**
 {{ end }}
+
+# Ignore non-windows stuff
 {{ if ne .chezmoi.os "windows" }}
 .chezmoiscripts/windows/**
+Documents
 {{ end }}
