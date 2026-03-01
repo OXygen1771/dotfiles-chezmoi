@@ -1,0 +1,261 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+# MUST be declared before the actual palette defitnition
+palette = "catppuccin_mocha"
+
+continuation_prompt = "[?: ](yellow dimmed)"
+
+{{ if not (eq .chezmoi.os "windows") -}}
+format = """\
+$hostname$localip\
+$container\
+$cmd_duration\
+\
+$fill\
+$git_metrics\
+$line_break\
+\
+$shlvl\
+$jobs\
+$sudo\
+$username\
+$directory\
+$character"""
+
+right_format = """\
+$fossil_branch\
+$git_branch\
+$git_commit\
+$git_state\
+$git_status\
+\
+$docker_context\
+\
+$package\
+$c\
+$cpp\
+$dotnet\
+$golang\
+$lua\
+$python\
+$status"""
+{{ else -}}
+format = """\
+$hostname$localip\
+$container\
+$cmd_duration\
+\
+$fill\
+$git_metrics\
+\
+ |\
+\
+$fossil_branch\
+$git_branch\
+$git_commit\
+$git_state\
+$git_status\
+\
+$docker_context\
+\
+$package\
+$c\
+$cpp\
+$dotnet\
+$golang\
+$lua\
+$python\
+$status
+\
+$line_break\
+\
+$shlvl\
+$jobs\
+$sudo\
+$username\
+$directory\
+$character"""
+{{- end }}
+
+[fill]
+symbol = ' '
+
+[line_break]
+disabled = false
+
+# left part
+
+[hostname]
+ssh_only = true
+ssh_symbol = "󰖟 "
+style = "yellow"
+
+[localip]
+ssh_only = true
+style = "yellow italic"
+
+[cmd_duration]
+show_milliseconds = true
+style = "lavender italic"
+format = "[↑ in $duration]($style)"
+
+[container]
+symbol = ' '
+style = "teal bold dimmed"
+format = "[$symbol [$name]]($style)"
+
+[shlvl]
+threshold = 2
+symbol = "↕ "
+style = "yellow"
+disabled = false
+
+[jobs]
+symbol = "[▷](lavender italic)"
+style = "lavender"
+format = "[$symbol$number]($style) "
+
+[sudo]
+style = "red bold"
+symbol = "[⚡ ]($style)"
+format = "[$symbol]($style)"
+disabled = false
+
+[username]
+style_user = "yellow"
+style_root = "red bold"
+format = "[$user]($style) "
+
+[directory]
+truncation_length = 2
+truncate_to_repo = true
+style = "peach"
+read_only_style = "red bold"
+read_only = ""
+repo_root_style = "yellow"
+fish_style_pwd_dir_length = 1
+
+[character]
+success_symbol = "[❯](green bold)"
+error_symbol = "[❯](red bold)"
+vimcmd_symbol = "[❮](green bold)"
+vimcmd_replace_one_symbol = "[❮](lavender bold)"
+vimcmd_replace_symbol = "[❮](lavender bold)"
+vimcmd_visual_symbol = "[❮](yellow bold)"
+
+
+# right part
+
+[git_metrics]
+added_style = "green dimmed"
+deleted_style = "red dimmed"
+format = "([∧$added]($added_style) )([∨$deleted]($deleted_style) )"
+disabled = false
+
+[git_branch]
+symbol = ""
+style = "yellow italic bold"
+format = "[ $symbol $branch ]($style)"
+
+[git_commit]
+style = "teal"
+only_detached = true
+tag_disabled = false
+tag_symbol = "⌂ "
+format = "[($hash$tag) ]($style)"
+
+[git_state]
+style = "blink yellow bold"
+
+[git_status]
+style = "yellow"
+format = "([⌜$all_status$ahead_behind⌝]($style))"
+conflicted = "⍉"
+ahead = "↑([$count]($style))"
+behind = "↓([$count]($style))"
+diverged = "↕([$ahead_count](green italic))([$behind_count](red italic))"
+# windows_starship = ...
+
+[docker_context]
+symbol = "󰡨 "
+style = "sapphire"
+format = " [docker]($style dimmed) [$symbol$context]($style)"
+
+[package]
+symbol = " "
+style = "mauve dimmed italic bold"
+format = " [pkg](teal dimmed italic) [$symbol$version]($style)"
+
+[c]
+symbol = " "
+style = "green"
+format = " []($style dimmed) [$symbol($version(-$name) )]($style)"
+
+[cpp]
+symbol = " "
+style = "green"
+format = " []($style dimmed) [$symbol($version(-$name) )]($style)"
+
+[dotnet]
+symbol = "󰪮 "
+style = "green"
+format = " []($style dimmed) [$symbol($version(󰓾 $tfm) )]($style)"
+
+[golang]
+symbol = "󰟓 "
+style = "green"
+format = " []($style dimmed) [$symbol($version )]($style)"
+
+[lua]
+symbol = " "
+style = "green"
+format = " [lua]($style dimmed) [$symbol($version )]($style)"
+
+[python]
+symbol = " "
+style = "green"
+format = " []($style dimmed) [$symbol$pyenv_prefix($version )(\\($virtualenv\\) )]($style)"
+
+[status]
+symbol = "✗ "
+success_symbol = ""
+not_executable_symbol = "⊘ "
+not_found_symbol = " "
+sigint_symbol = "󰟾 "
+signal_symbol = "󰞏 "
+style = "red bold"
+pipestatus = true
+pipestatus_separator = "|"
+format = "[ $symbol$status( $common_meaning)( $signal_name)]($style) "
+pipestatus_format = "[\\[$pipestatus\\] =>]($style) [$symbol$status( $common_meaning)( $signal_name)( $maybe_int)]($style) "
+disabled = false
+
+
+# Palette definitions, might add macchiato later
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
