@@ -2,10 +2,22 @@
 #!/bin/bash
 
 # Fonts and the font folder
-FONT_NAMES = ("ttf-jetbrains-mono-nerd")
+FONT_NAMES=("ttf-jetbrains-mono-nerd")
 
-echo "Installing the following fonts: ${FONT_NAMES[@]}"
-sudo pacman -S "${FONT_NAMES[@]}"
+TO_INSTALL=()
+for font in "${FONT_NAMES[@]}"; do
+    if ! pacman -Qq "$font" &> /dev/null; then
+        TO_INSTALL+=("$font")
+    fi
+done
+
+if [ ${#TO_INSTALL[@]} -eq 0 ]; then
+    echo "All fonts are already installed."
+    exit 0
+fi
+
+echo "Installing the following fonts: ${TO_INSTALL[@]}"
+sudo pacman -S --needed "${TO_INSTALL[@]}"
 
 echo "Updating font cache"
 fc-cache -fv
