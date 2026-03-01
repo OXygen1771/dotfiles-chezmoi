@@ -46,6 +46,7 @@ PKG_TO_INSTALL=()  # packages for pacman
 	if ! command -v {{ $app.bin }} &> /dev/null; then
 	    log_info "Installing {{ $id }} via its custom command:"
 	    log_info "{{ $app.install_linux }}"
+	    {{ $app.install_linux }}
 	    log_success "{{ $id }} installed successfully!"
 	else
 	    log_info "Found {{ $id }}, skipping install"
