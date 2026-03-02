@@ -3,9 +3,12 @@ README.md
 # Ignore linux stuff
 {{ if ne .chezmoi.os "linux" }}
 .chezmoiscripts/linux/**
-dot_config/fish/**
-dot_config/systemd/**
-dot_config/environment.d/**
+
+# note that .chezmoiignore looks for *target* paths, not source paths
+# e.g. the regular .config instead of dot_config in chezmoi source
+.config/fish/**
+.config/systemd/**
+.config/environment.d/**
 {{ end }}
 
 # Ignore windows stuff
