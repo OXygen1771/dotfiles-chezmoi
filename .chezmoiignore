@@ -1,12 +1,15 @@
 README.md
 
-# Ignore non-linux stuff
+# Ignore linux stuff
 {{ if ne .chezmoi.os "linux" }}
 .chezmoiscripts/linux/**
+dot_config/fish/**
+dot_config/systemd/**
+dot_config/environment.d/**
 {{ end }}
 
-# Ignore non-windows stuff
+# Ignore windows stuff
 {{ if ne .chezmoi.os "windows" }}
 .chezmoiscripts/windows/**
-Documents
+Documents/**
 {{ end }}

@@ -1,0 +1,5 @@
+Host *
+    # Add keys to agent after 1 password
+    AddKeysToAgent yes
+    
+    ForwardAgent no

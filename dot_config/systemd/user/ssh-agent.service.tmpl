@@ -1,0 +1,13 @@
+[Unit]
+Description=SSH Agent
+Documentation=man:ssh-agent(1)
+IgnoreOnIsolate=true
+
+[Service]
+Type=simple
+# %t = XDG_RUNTIME_DIR = /run/user/1000
+Environment=SSH_AUTH_SOCK=%t/ssh-agent.socket
+ExecStart=/usr/bin/ssh-agent -D -a $SSH_AUTH_SOCK
+
+[Install]
+WantedBy=default.target
