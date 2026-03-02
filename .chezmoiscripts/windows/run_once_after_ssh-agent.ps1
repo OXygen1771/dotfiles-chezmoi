@@ -3,7 +3,7 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 {
     if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000)
     {
-        $CommandLine = "-NoExit -File `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
+        $CommandLine = "-File `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
         Start-Process -Wait -FilePath pwsh.exe -Verb Runas -ArgumentList $CommandLine
     Exit
     }
@@ -26,3 +26,7 @@ if ($sshAgent)
 	}
     }
 }
+
+Write-Host "[INFO] This window will be closed automatically in 3 seconds"
+Start-Sleep 3
+Exit
