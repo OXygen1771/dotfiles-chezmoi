@@ -18,6 +18,7 @@ $line_break\
 $shlvl\
 $jobs\
 $sudo\
+$os\
 $username\
 $directory\
 $character"""
@@ -37,6 +38,7 @@ $cpp\
 $dotnet\
 $golang\
 $lua\
+$rust\
 $python\
 $status"""
 {{ else -}}
@@ -64,12 +66,14 @@ $cpp\
 $dotnet\
 $golang\
 $lua\
+$rust\
 $python\
 $status
 \
 $shlvl\
 $jobs\
 $sudo\
+$os\
 $username\
 $directory\
 $character"""
@@ -118,6 +122,63 @@ style = "red bold"
 symbol = "[⚡ ]($style)"
 format = "[$symbol]($style)"
 disabled = false
+
+[os]
+style = "peach dimmed"
+format = "[$symbol]($style) "
+disabled = false
+
+# from nerd font symbols preset
+[os.symbols]
+Alpaquita = " "
+Alpine = " "
+AlmaLinux = " "
+Amazon = " "
+Android = " "
+AOSC = " "
+Arch = " "
+Artix = " "
+CachyOS = " "
+CentOS = " "
+Debian = " "
+DragonFly = " "
+Elementary = " "
+Emscripten = " "
+EndeavourOS = " "
+Fedora = " "
+FreeBSD = " "
+Garuda = "󰛓 "
+Gentoo = " "
+HardenedBSD = "󰞌 "
+Illumos = "󰈸 "
+Ios = "󰀷 "
+Kali = " "
+Linux = " "
+Mabox = " "
+Macos = " "
+Manjaro = " "
+Mariner = " "
+MidnightBSD = " "
+Mint = " "
+NetBSD = " "
+NixOS = " "
+Nobara = " "
+OpenBSD = "󰈺 "
+openSUSE = " "
+OracleLinux = "󰌷 "
+Pop = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+RockyLinux = " "
+Redox = "󰀘 "
+Solus = "󰠳 "
+SUSE = " "
+Ubuntu = " "
+Unknown = " "
+Void = " "
+Windows = "󰍲 "
+Zorin = " "
 
 [username]
 style_user = "yellow"
@@ -208,6 +269,11 @@ format = " []($style dimmed) [$symbol($version )]($style)"
 symbol = " "
 style = "green"
 format = " [lua]($style dimmed) [$symbol($version )]($style)"
+
+[rust]
+symbol = "󱘗 "
+style = "green"
+format = " []($style dimmed) [$symbol($version )]($style)"
 
 [python]
 symbol = " "
