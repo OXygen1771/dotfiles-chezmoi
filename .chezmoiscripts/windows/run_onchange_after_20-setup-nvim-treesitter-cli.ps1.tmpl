@@ -1,0 +1,30 @@
+function Log-Info ($msg) { Write-Host "[INFO] $msg" -ForegroundColor Cyan }
+function Log-Success ($msg) { Write-Host "[SUCCESS] $msg" -ForegroundColor Green }
+function Log-Warn ($msg) { Write-Host "[WARNING] $msg" -ForegroundColor Yellow }
+function Log-Error ($msg) { Write-Error "[ERROR] $msg" -ForegroundColor Red }
+
+{{ $apps := .apps | fromJson -}}
+
+{{ if (index $apps "neovim").is_installed -}}
+Log-Info "You chose to install neovim! However..."
+Log-Warn "Note that for proper treesitter support you MUST install tree-sitter-cli."
+
+{{ if (index $apps "rustup").is_installed -}}
+Log-Info "Checking for rustup..."
+if (Get-Command {{ $apps.rustup.bin }} -ErrorAction SilentlyContinue)
+{
+    Log-Info "Found rustup! Checking for cargo..."
+    if (Get-Command "cargo" -ErrorAction SilentlyContinue)
+    {
+    	Log-Info "Found cargo! Installing tree-sitter-cli"
+    	cargo install --locked tree-sitter-cli
+    }
+    else
+    {
+        Log-Error "Could not find cargo! Have you installed rustup?"
+    }
+}
+{{- else }}
+Log-Error "rustup not found! tree-sitter-cli probably won't be installed!"
+{{- end }}
+{{- end }}

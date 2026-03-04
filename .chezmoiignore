@@ -1,5 +1,7 @@
 README.md
 
+{{ $apps := .apps | fromJson -}}
+
 # Ignore linux stuff
 {{ if ne .chezmoi.os "linux" }}
 .chezmoiscripts/linux/**
@@ -15,4 +17,9 @@ README.md
 {{ if ne .chezmoi.os "windows" }}
 .chezmoiscripts/windows/**
 Documents/**
+{{ end }}
+
+# Ignore nvim config if not installed
+{{ if not (index $apps "neovim").is_installed }}
+.config/nvim/**
 {{ end }}

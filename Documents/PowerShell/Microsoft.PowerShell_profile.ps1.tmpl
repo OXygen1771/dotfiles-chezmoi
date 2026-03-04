@@ -1,5 +1,3 @@
-{{- if eq .chezmoi.os "windows" -}}
-
 {{- $apps := .apps | fromJson -}}
 
 # MUST be the at the top of the file
@@ -8,14 +6,15 @@ using namespace System.Management.Automation.Language
 
 
 ### Environment variables
+
+$env:XDG_CONFIG_HOME = "$env:USERPROFILE/.config"
+
 {{ if (index $apps "bat").is_installed -}}
 if (Get-Command bat -ErrorAction SilentlyContinue)
 {
     $env:PAGER = "bat"
 }
 {{- end }}
-
-
 
 
 ### Integrations
@@ -71,5 +70,3 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue)
     zoxide init powershell | Out-String | Invoke-Expression
 }
 {{- end }}
-
-{{- end -}}
