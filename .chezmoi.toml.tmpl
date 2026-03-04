@@ -31,6 +31,7 @@
     "rustup"   (dict "bin" "rustup"   "install_linux" "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh" "install_windows" "Write-Host \"Install rustup via the provided installer\" -ForegroundColor Yellow; start \"https://rust-lang.org/tools/install/\"; Start-Sleep -Seconds 5" "update_linux" "rustup self update" "update_windows" "rustup self update" "win_patterns" (list ".cargo/bin/rustup.exe"))
     "uv"       (dict "bin" "uv" "install_linux" "curl -LsSf https://astral.sh/uv/install.sh | sh" "install_windows" "powershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\"" "update_linux" "uv self update" "update_windows" "uv self update" "win_patterns" (list ".cargo/bin/uv.exe" ".local/bin/uv.exe"))
 
+    "cmake"    (dict "bin" "cmake"    "pkg" "cmake"    "winget" "Kitware.CMake"      "win_patterns" (list "cmake.exe"))
     "neovim"   (dict "bin" "nvim"     "pkg" "neovim"   "winget" "Neovim.Neovim"      "win_patterns" (list "*eovim/bin/nvim.exe" "nvim-win64/bin/nvim.exe"))
     "starship" (dict "bin" "starship" "pkg" "starship" "winget" "Starship.Starship"  "win_patterns" (list "*tarship/bin/starship.exe" "starship.exe"))
     "git-lfs"  (dict "bin" "git-lfs"  "pkg" "git-lfs"  "winget" "GitHub.GitLFS"      "win_patterns" (list "Git LFS/git-lfs.exe" "Git/cmd/git-lfs.exe"))

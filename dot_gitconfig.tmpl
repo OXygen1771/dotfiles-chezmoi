@@ -1,3 +1,5 @@
+{{ $apps := .apps | fromJson -}}
+
 [user]
     name = {{ .username }}
     email = {{ .email }}
@@ -17,6 +19,9 @@
 
 [core]
     autocrlf = {{ if eq .chezmoi.os "windows" }} true {{ else }} input {{ end }}
+    {{ if (index $apps "neovim").is_installed -}}
+    editor = nvim
+    {{- end }}
 
 [credential]
     {{- if eq .chezmoi.os "windows" }}
