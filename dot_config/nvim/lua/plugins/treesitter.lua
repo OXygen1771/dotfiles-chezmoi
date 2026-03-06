@@ -50,7 +50,7 @@ return {
                 [".*/templates/.*%tmpl"] = "helm",
                 -- chemzmoi templates
                 [".*%.sh%.tmpl"] = "bash",
-                [".*%.ps1%.tmpl"] = "powershell",
+                [".*%.ps1%.tmpl"] = "ps1",
                 [".*%.fish%.tmpl"] = "fish",
                 [".*%.toml%.tmpl"] = "toml",
             }
