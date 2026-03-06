@@ -1,3 +1,5 @@
+Write-Host "[INFO] Setting up ssh-agent service, you will see a prompt to elevate this (and only this!) script's permissions"
+
 # Self-elevate the script if required
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator'))
 {
