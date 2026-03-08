@@ -1,3 +1,9 @@
+{{ $apps := .apps | fromJson -}}
+{{- $python_prompt_module := "$python" -}}
+{{- if (index $apps "uv").is_installed -}}
+{{- $python_prompt_module = "${custom.uv}${custom.python_fallback}" -}}
+{{- end -}}
+
 "$schema" = "https://starship.rs/config-schema.json"
 
 # MUST be declared before the actual palette defitnition
@@ -39,7 +45,7 @@ $dotnet\
 $golang\
 $lua\
 $rust\
-$python\
+{{ $python_prompt_module }}\
 $status"""
 {{ else -}}
 format = """\
@@ -67,7 +73,7 @@ $dotnet\
 $golang\
 $lua\
 $rust\
-$python\
+{{ $python_prompt_module }}\
 $status
 \
 $shlvl\
@@ -293,6 +299,25 @@ pipestatus_separator = "|"
 format = "[ $symbol$status( $common_meaning)( $signal_name)]($style) "
 pipestatus_format = "[\\[$pipestatus\\] =>]($style) [$symbol$status( $common_meaning)( $signal_name)( $maybe_int)]($style) "
 disabled = false
+
+
+{{- if (index $apps "uv").is_installed -}}
+# Custom modules
+[custom.uv]
+detect_files = ["uv.lock", "pyproject.toml", "requirements.txt"]
+command = "uv python find --show-version"
+symbol = " "
+style = "teal"
+format = " []($style dimmed) [$symbol uv ($output )(\\($virtualenv\\) )]($style)"
+
+[custom.python_fallback]
+detect_extensions = [".py"]
+detect_files = ["pyproject.toml", "requirements.txt", "!uv.lock"]
+command = "python --version"
+symbol = " "
+style = "green"
+format = " []($style dimmed) [$symbol$pyenv_prefix($output )(\\($virtualenv\\) )]($style)"
+{{- end -}}
 
 
 # Palette definitions, might add macchiato later
