@@ -301,7 +301,7 @@ pipestatus_format = "[\\[$pipestatus\\] =>]($style) [$symbol$status( $common_mea
 disabled = false
 
 
-{{- if (index $apps "uv").is_installed -}}
+{{ if (index $apps "uv").is_installed -}}
 # Custom modules
 [custom.uv]
 detect_files = ["uv.lock", "pyproject.toml", "requirements.txt"]
@@ -309,6 +309,9 @@ command = "uv python find --show-version"
 symbol = " "
 style = "teal"
 format = " []($style dimmed) [$symbol uv ($output )(\\($virtualenv\\) )]($style)"
+{{ if eq .chezmoi.os "windows" -}}
+ignore_timeout = true
+{{- end }}
 
 [custom.python_fallback]
 detect_extensions = [".py"]
@@ -317,7 +320,7 @@ command = "python --version"
 symbol = " "
 style = "green"
 format = " []($style dimmed) [$symbol$pyenv_prefix($output )(\\($virtualenv\\) )]($style)"
-{{- end -}}
+{{- end }}
 
 
 # Palette definitions, might add macchiato later
