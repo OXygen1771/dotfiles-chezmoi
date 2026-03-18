@@ -6,3 +6,6 @@ require("config.vim-keymap")
 
 -- use lazy
 require("config.lazy")
+
+-- lsp config
+require("config.lsp")

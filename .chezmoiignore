@@ -1,5 +1,8 @@
 README.md
 
+# Neovim lua lsp config
+.luarc.json
+
 {{ $apps := .apps | fromJson -}}
 
 # Ignore linux stuff
