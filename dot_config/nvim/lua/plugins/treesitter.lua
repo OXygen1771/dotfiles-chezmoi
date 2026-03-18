@@ -53,6 +53,8 @@ return {
                 [".*%.ps1%.tmpl"] = "ps1",
                 [".*%.fish%.tmpl"] = "fish",
                 [".*%.toml%.tmpl"] = "toml",
+                -- other languages
+                [".*%.lua%.tmpl"] = "lua",
             }
         })
         vim.treesitter.language.register("gotmpl", "gotmpl")
