@@ -11,6 +11,20 @@ README.md
 .config/fish/**
 .config/systemd/**
 .config/environment.d/**
+.config/gitui/**
+
+{{ else }}
+
+# Ignore fish config if not installed
+{{ if not (index $apps "fish").is_installed }}
+.config/fish/**
+{{ end }}
+
+# Ignore gitui config if not installed
+{{ if not (index $apps "gitui").is_installed }}
+.config/gitui/**
+{{ end }}
+
 {{ end }}
 
 # Ignore windows stuff
@@ -22,4 +36,9 @@ Documents/**
 # Ignore nvim config if not installed
 {{ if not (index $apps "neovim").is_installed }}
 .config/nvim/**
+{{ end }}
+
+# Ignore starship config if not installed
+{{ if not (index $apps "starship").is_installed }}
+.config/starship.toml
 {{ end }}

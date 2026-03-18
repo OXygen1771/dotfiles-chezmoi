@@ -46,6 +46,7 @@
 {{- if eq .chezmoi.os "linux" -}}
     {{- $apps_linux := dict 
     "fish"     (dict "bin" "fish"     "pkg" "fish")
+    "gitui"    (dict "bin" "gitui"    "pkg" "gitui")
     -}}
     {{- range $k, $v := $apps_linux -}}
         {{- $_ := set $apps $k $v -}}
