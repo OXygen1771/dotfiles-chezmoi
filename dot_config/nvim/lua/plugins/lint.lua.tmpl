@@ -1,0 +1,31 @@
+---@diagnostic disable-next-line
+{{ $apps := .apps | fromJson -}}
+
+return {
+    "mfussenegger/nvim-lint",
+    opts = {
+        linters_by_ft = {
+            python = {
+                {{ if (index $apps "uv").is_installed -}}
+                "ruff",
+                {{- end }}
+            },
+        },
+--         linters = {
+--             ruff = {
+--                 cmd = "ruff",
+--                 args = { "check", "--stdin=filename", "$FILENAME", "-" },
+--                 stdin = true,
+--             },
+--         },
+    },
+
+    config = function(_, opts)
+        -- lint on save
+        vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+            callback = function()
+                require("lint").try_lint()
+            end,
+        })
+    end,
+}

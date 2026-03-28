@@ -1,4 +1,4 @@
-{{- $apps := .apps | fromJson -}}
+{{ $apps := .apps | fromJson -}}
 
 return {
     {
@@ -7,40 +7,63 @@ return {
             -- required
             "nvim-lua/plenary.nvim",
 
+            {{ if and (index $apps "fzf").is_installed (index $apps "cmake").is_installed -}}
             -- optional, built either with make + gcc/clang/mingw or cmake + msvc
             {
                 "nvim-telescope/telescope-fzf-native.nvim",
                 build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release --target install"
             },
+            {{ end }}
+            "nvim-telescope/telescope-ui-select.nvim",
         },
 
-        opts = {
-            extensions = {
-                fzf = {
-                    fuzzy = true,
-                    case_mode = "smart_case",
+        opts = function()
+            local themes = require("telescope.themes")
+
+            defaults = {
+                {{ if (index $apps "ripgrep").is_installed -}}
+                vimgrep_arguments = {
+                    "rg", "--color=never", "--no-heading", "--with-filename", "--line-number", "--column", "--smart-case",
                 },
-                ["ui-select"] = {
-                    require("telescope.themes").get_dropdown()
+                {{- end }}
+                pickers = {
+                    {{ if (index $apps "fd").is_installed -}}
+                    find_files = {
+                        "fd", "--type", "f", "--hidden",
+                    },
+                    {{- end }}
                 },
-            },
-            {{ if (index $apps "ripgrep").is_installed }}
-            vimgrep_argument = { "rg", "--smart_case" },
-            {{- end }}
-        },
+                extensions = {
+                    {{ if (index $apps "fzf").is_installed -}}
+                    fzf = {
+                        fuzzy = true,
+                        override_generic_sorter = true,
+                        override_file_sorter = true,
+                        case_mode = "smart_case",
+                    },
+                    {{- end }}
+                    ["ui-select"] = themes.get_dropdown({
+                        layout_config = { height = 10, },
+                    }),
+                },
+            }
+        end,
 
         config = function(_, opts)
-            require("telescope").setup(opts)
+            local telescope = require("telescope")
+            telescope.setup(opts)
+
+            -- load extensions
+            {{ if (index $apps "fzf").is_installed -}}
+            telescope.load_extension("fzf")
+            {{- end }}
+            telescope.load_extension("ui-select")
 
             local builtin = require("telescope.builtin")
             vim.keymap.set("n", "<C-[>", builtin.find_files, {})
             vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
+            vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
+            vim.keymap.set("n", "<leader>fh", builtin.help_tags, {})
         end,
-    },
-    {
-        "nvim-telescope/telescope-ui-select.nvim",
-        config = function()
-            require("telescope").load_extension("ui-select")
-        end
     },
 }

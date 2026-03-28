@@ -19,7 +19,7 @@ return {
         local ts = require("nvim-treesitter")
 
         -- install languages
-        local languages = { 
+        local languages = {
             "bash",
             "c",
             "cmake",
