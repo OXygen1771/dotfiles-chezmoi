@@ -9,3 +9,4 @@ require("config.lazy")
 
 -- lsp config
 require("config.lsp")
+require("config.lsp-diagnostics")
