@@ -43,7 +43,7 @@ Documents/**
 # Ignore uv, ruff and ty specific neovim configs if not installed
 # but nvim is installed
 {{ if not (index $apps "uv").is_installed }}
-.config/nvim/lua/plugins/lsp/python-ty.lua
+.config/nvim/lua/plugins/lsp/python*
 {{ end }}
 {{ end }}
 
