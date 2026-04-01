@@ -26,3 +26,31 @@ vim.api.nvim_create_autocmd("LspAttach", {
         keymap.set({ 'n', 'v' }, '<M-CR>', vim.lsp.buf.code_action, opts)
     end,
 })
+
+
+-- load lsp configurations in lua/config/lsp/
+local function load_lsp_configs()
+    local lua_dir = vim.fn.stdpath("config") .. "/lua"
+    local config_lsp_dir = lua_dir .. "/config/lsp"
+
+    -- if lsp config dir exists
+    if vim.loop.fs_stat(config_lsp_dir) then
+        local function scan(dir, rel_path)
+            local files = vim.fn.glob(dir .. "/*", false, true)
+            for _, f in ipairs(files) do
+                local stat = vim.loop.fs_stat(f)
+                -- scan recursively into subdirectories, if needed
+                if stat and stat.type == "directory" then
+                    scan(f, rel_path .. "/" .. vim.fn.fnamemodify(f, ":t"))
+                elseif stat and stat.type == "file" and f:match("%.lua$") then
+                    local module_name = f:sub(#lua_dir + 2, -5):gsub("/", ".")
+                    -- call require("lsp.lua")
+                    pcall(require, module_name)
+                end
+            end
+        end
+        scan(config_lsp_dir, "")
+    end
+end
+
+load_lsp_configs()
