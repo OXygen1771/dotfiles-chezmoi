@@ -2,9 +2,7 @@ return {
     "neovim/nvim-lspconfig",
 
     config = function()
-        local lspconfig = require("lspconfig")
-
-        lspconfig.lua_ls.setup({
+        vim.lsp.config("lua_ls", {
             settings = {
                 Lua = {
                     runtime = { version = "LuaJIT" },
@@ -14,5 +12,7 @@ return {
                 },
             },
         })
+
+        vim.lsp.enable("lua_ls")
     end,
 }
