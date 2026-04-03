@@ -31,25 +31,24 @@ vim.api.nvim_create_autocmd("LspAttach", {
 -- load lsp configurations in lua/config/lsp/
 local function load_lsp_configs()
     local lua_dir = vim.fn.stdpath("config") .. "/lua"
-    local config_lsp_dir = lua_dir .. "/config/lsp"
+    local config_lsp_dir = vim.fs.normalize(lua_dir .. "/config/lsp")
 
     -- if lsp config dir exists
-    if vim.loop.fs_stat(config_lsp_dir) then
-        local function scan(dir, rel_path)
-            local files = vim.fn.glob(dir .. "/*", false, true)
-            for _, f in ipairs(files) do
-                local stat = vim.loop.fs_stat(f)
-                -- scan recursively into subdirectories, if needed
-                if stat and stat.type == "directory" then
-                    scan(f, rel_path .. "/" .. vim.fn.fnamemodify(f, ":t"))
-                elseif stat and stat.type == "file" and f:match("%.lua$") then
-                    local module_name = f:sub(#lua_dir + 2, -5):gsub("/", ".")
-                    -- call require("lsp.lua")
-                    pcall(require, module_name)
+    if vim.uv.fs_stat(config_lsp_dir) then
+        for name, type in vim.fs.dir(config_lsp_dir, { recursive = true }) do
+            -- scan recursively into subdirectories, if needed
+            if type == "file" and name:match("%.lua$") then
+                -- normalize name and strip extension
+                local rel_path = "config/lsp/" .. name:sub(1, -5)
+                -- convert config/lsp/lsp-name.lua to config.lsp.lsp-name
+                local module_name = rel_path:gsub("/", ".")
+                -- call require("lsp.lua")
+                local ok, err = pcall(require, module_name)
+                if not ok then
+                    vim.notify("Error loading" .. module_name .. ": " .. err, vim.log.levels.ERROR)
                 end
             end
         end
-        scan(config_lsp_dir, "")
     end
 end
 
