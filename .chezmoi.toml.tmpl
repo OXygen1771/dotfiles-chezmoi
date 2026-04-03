@@ -4,20 +4,32 @@
 
 # there shouldn't be anything in the target .toml, it's all templates!
 {{/* Base prompts */}}
-{{- $email := promptStringOnce . "email" "Email address" -}}
-{{- $username := promptStringOnce . "username" "Username" -}}
+{{- writeToStdout (
+    includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" 
+    "text" "You will be asked a few questions as part of the configuration process. These settings will be used in your git config and when generating SSH keys, for example\n"
+    )
+) -}}
+{{- $email := promptStringOnce . "email" (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" "text" "[CONFIG]: Please enter your email address")) -}}
+{{- $username := promptStringOnce . "username" (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" "text" "[CONFIG]: Please enter your username")) -}}
 
 {{/* OS & WSL detection */}}
 {{- $osid := .chezmoi.os -}}
 {{- if (and (hasKey .chezmoi "osRelease") (hasKey .chezmoi.osRelease "id")) -}}
-    {{- $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
-    {{- writeToStdout (printf "OS detected as %s\n" $osid) -}}
+    {{- $osid = printf "%s-%s" $osid .chezmoi.osRelease.id -}}
+    {{- writeToStdout (
+        includeTemplate "colorize.tmpl" (dict "style" (list "dim" "italic")
+        "text" (printf "[INFO]: OS detected as %s\n" $osid)
+        )
+    ) -}}
 {{- end -}}
 {{- $is_wsl := (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
 {{- if $is_wsl -}}
-    {{- writeToStdout "Running on WSL. GUI applications will not be installed and/or set up.\n" -}}
+    {{- writeToStdout (
+        includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold"
+        "text" "[WSL]: Running on WSL. GUI applications will not be installed and/or set up.\n"
+        )
+    ) -}}
 {{- end -}}
-
 
 {{- /* Apps to install 
      * dict: key is application name, value is a dict where:
@@ -42,8 +54,10 @@
     "fd"       (dict "bin" "fd"       "pkg" "fd"       "winget" "sharkdp.fd"         "win_patterns" (list "fd.exe"))
     "eza"      (dict "bin" "eza"      "pkg" "eza"      "winget" "eza-community.eza"  "win_patterns" (list "eza.exe"))
 -}}
+{{- $pacman_name := "(unknown package manager)" -}}
 {{/* Linux apps */}}
 {{- if eq .chezmoi.os "linux" -}}
+{{- $pacman_name = "pacman" -}}
     {{- $apps_linux := dict 
     "fish"     (dict "bin" "fish"     "pkg" "fish")
     "gitui"    (dict "bin" "gitui"    "pkg" "gitui")
@@ -63,6 +77,7 @@
 
 {{/* Windows apps */}}
 {{- if eq .chezmoi.os "windows" -}}
+{{- $pacman_name = "winget" -}}
     {{- $apps_windows := dict 
     "less"     (dict "bin" "less" "winget" "jftuga.less" "win_patterns" (list "less.exe" "lesskey.exe"))
     -}}
@@ -72,6 +87,11 @@
 {{- end -}}
 
 {{/* Interactive app selection */}}
+{{- writeToStdout (
+    includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold"
+    "text" (printf "Next, you will be asked if you want to install or update several apps using the %s package manager.\n" $pacman_name)
+    )
+) -}}
 {{- $final_apps := dict -}}
 {{- range $id, $app := $apps -}}
     {{- $is_installed := false -}}
@@ -115,10 +135,12 @@
         {{- if $installed_path -}}
 	    {{- $status = printf "found at %s" $installed_path -}}
 	{{- end -}}
-	{{- $msg := printf "App '%s' already exists (%s). Do you wish to UPDATE it?" $id $status -}}
+	{{- $msg := printf "App '%s' already exists (%s). Do you wish to UPDATE it (y/n)" $id $status -}}
+    {{- $msg = includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold" "text" (printf "[APP]: %s" $msg)) -}}
 	{{- $should_update = promptBoolOnce $ (printf "update_%s" $id) $msg -}}
     {{- else -}}
-        {{- $msg := printf "Install '%s'?" $id -}}
+        {{- $msg := printf "Install '%s' (y/n)" $id -}}
+        {{- $msg = includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" "text" (printf "[APP]: %s" $msg)) -}}
 	{{- $should_install = promptBoolOnce $ (printf "install_$s" $id) $msg -}}
     {{- end -}}
 
@@ -146,7 +168,11 @@
 	{{- $potential_gcm_path := printf "%s/../mingw64/bin/git-credential-manager.exe" (dir $git_path_wsl) -}}
 	{{- if (stat $potential_gcm_path) -}}
 	    {{- $gcm_path = $potential_gcm_path -}}
-	    {{- writeToStdout "Using Windows Git Credential manager at " $gcm_path "\n" -}}
+	    {{- writeToStdout (
+            includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold"
+            "text" (printf "[WSL]: Using Windows Git Credential manager at %s\n" $gcm_path)
+            )
+        ) -}}
 	{{- end -}}
     {{- end -}}
 {{- end -}}

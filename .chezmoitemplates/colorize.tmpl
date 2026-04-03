@@ -1,0 +1,102 @@
+{{- /*
+    Print colorized text using ANSI escape sequences. If the terminal doesn't support text colorization, the text is returned
+    as-is.
+
+    Parameters (dict):
+        - "text" - string, text to output
+        - "color" - color to use: black, red, green, yellow, blue, purple, cyan, white
+        - "bg" - background color: black_bg, red_bg, etc (color with a "_bg" suffix)
+        - "style" - text style: regular, bold, dim, italic, underline, slow_blink, rapid_blink, inverted
+                            OR a list of styles (e.g. list "bold", "italic")
+
+    Usage:
+        Include this template before you want to use it:
+        {{- template "colorize" -}}
+
+        And then use it:
+        {{ writeToStdout (includeTemplate "colorize" (dict "color" "red" "text" "ERROR")) }}
+*/ -}}
+
+{{- $codes := dict
+    "black"       "30"
+    "red"         "31"
+    "green"       "32"
+    "yellow"      "33"
+    "blue"        "34"
+    "purple"      "35"
+    "cyan"        "36"
+    "white"       "37"
+
+    "black_bg"    "40"
+    "red_bg"      "41"
+    "green_bg"    "42"
+    "yellow_bg"   "43"
+    "blue_bg"     "44"
+    "purple_bg"   "45"
+    "cyan_bg"     "46"
+    "white_bg"    "47"
+
+    "regular"     "0"
+    "bold"        "1"
+    "dim"         "2"
+    "italic"      "3"
+    "underline"   "4"
+    "slow_blink"  "5"
+    "rapid_blink" "6"
+    "no_blink"    "25"
+    "inverted"    "7"
+-}}
+
+{{- /* check $TERM */ -}}
+{{- $term := env "TERM" | default "" -}}
+{{- $no_color := or (eq $term "") (eq $term "dumb") -}}
+
+
+{{- $text := .text | default "" -}}
+
+{{- if $no_color -}}
+    {{- $text -}}
+
+{{- /* Xterm-compatible terminal shenanigans */ -}}
+{{- else -}}
+
+    {{- $seq := list -}}
+
+    {{- /* Apply foreground color */ -}}
+    {{- $color := index . "color" | default "" -}}
+    {{- if $color -}}
+        {{- $code := get $codes .color -}}
+        {{- if $code -}}{{- $seq = append $seq $code -}}{{- end -}}
+    {{- end -}}
+
+    {{- /* Apply background color */ -}}
+    {{- $bg := index . "bg" | default "" -}}
+    {{- if $bg -}}
+        {{- $code := get $codes .bg -}}
+        {{- if $code -}}{{- $seq = append $seq $code -}}{{- end -}}
+    {{- end -}}
+
+    {{- /* Apply styles */ -}}
+    {{- $style := index . "style" | default "" -}}
+    {{- if $style -}}
+        {{- $styles := .style -}}
+        {{- /* Transform into a list, if not a list already */ -}}
+        {{- if not (kindIs "slice" $styles) -}}
+            {{- $styles = list $styles -}}
+        {{- end -}}
+
+        {{- range $s := $styles -}}
+            {{- $code := get $codes $s -}}
+            {{- if $code -}}{{- $seq = append $seq $code -}}{{- end -}}
+        {{- end -}}
+    {{- end -}}
+
+
+    {{- /* Form the whole ANSI sequence */ -}}
+    {{- if eq (len $seq) 0 -}}
+        {{- $text -}}
+    {{- else -}}
+        {{- printf "\033[%sm%s\033[0m" (join ";" $seq) $text -}}
+    {{- end -}}
+
+{{- end -}}
