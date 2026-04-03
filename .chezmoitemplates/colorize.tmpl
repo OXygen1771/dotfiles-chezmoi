@@ -49,6 +49,8 @@
 
 {{- /* check $TERM */ -}}
 {{- $term := env "TERM" | default "" -}}
+{{- $windows_appdata := env "APPDATA" | default "" -}}
+{{- if $windows_appdata -}}{{- $term = "windows-terminal-maybe" -}}{{- end -}}
 {{- $no_color := or (eq $term "") (eq $term "dumb") -}}
 
 
