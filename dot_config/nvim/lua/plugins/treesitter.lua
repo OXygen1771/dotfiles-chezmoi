@@ -11,7 +11,7 @@ return {
     },
 
     lazy = false,
-    branch = "main",  -- use the new treesitter
+    branch = "main", -- use the new treesitter
     build = ":TSUpdate",
 
     -- we have to do this after the major treesitter updaate
@@ -30,12 +30,16 @@ return {
             "go",
             "gotmpl",
             "helm",
+            "html",
+            "latex",
             "lua",
+            "markdown",
+            "markdown_inline",
             "powershell",
             "python",
             "rust",
             "toml",
-            "yaml"
+            "yaml",
         }
 
         -- add go template file extensions
@@ -55,7 +59,7 @@ return {
                 [".*%.toml%.tmpl"] = "toml",
                 -- other languages
                 [".*%.lua%.tmpl"] = "lua",
-            }
+            },
         })
         vim.treesitter.language.register("gotmpl", "gotmpl")
 
@@ -81,10 +85,12 @@ return {
                 -- install languages that are not installed
                 for _, lang in ipairs(languages) do
                     vim.schedule(function()
-                        pcall(function() vim.cmd("TSInstall " .. lang) end)
+                        pcall(function()
+                            vim.cmd("TSInstall " .. lang)
+                        end)
                     end)
                 end
             end,
         })
-    end
+    end,
 }
