@@ -26,7 +26,7 @@ log_warn() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_err() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # Fonts and the font folder
-FONT_NAMES=("ttf-jetbrains-mono-nerd")
+FONT_NAMES=("ttf-jetbrains-mono-nerd" "noto-fonts" "noto-fonts-extra")
 
 TO_INSTALL=()
 for font in "${FONT_NAMES[@]}"; do

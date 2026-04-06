@@ -38,10 +38,10 @@ if command -v {{ $apps.rustup.bin }} &> /dev/null;then
     	log_info "Found cargo! Installing tree-sitter-cli"
     	cargo install --locked tree-sitter-cli
 	else
-        log_error "Could not find cargo! Have you installed rustup?"
+        log_err "Could not find cargo! Have you installed rustup?"
 	fi
 fi
 {{- else }}
-log_error "rustup not found! tree-sitter-cli probably won't be installed!"
+log_err "rustup not found! tree-sitter-cli probably won't be installed!"
 {{- end }}
 {{- end }}
