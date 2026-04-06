@@ -4,30 +4,62 @@
 
 # there shouldn't be anything in the target .toml, it's all templates!
 {{/* Base prompts */}}
-{{- writeToStdout (
-    includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" 
-    "text" "You will be asked a few questions as part of the configuration process. These settings will be used in your git config and when generating SSH keys, for example\n"
-    )
+{{- writeToStdout (printf "%s %s %s %s\n"
+    "You will be asked"
+        (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" "text"
+    "a few questions"))
+    "as part of the configuration process to set some basic settings. Some of the settings will be"
+        (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" (list "bold" "italic") "text"
+    "derived automatically."))
 ) -}}
-{{- $email := promptStringOnce . "email" (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" "text" "[CONFIG]: Please enter your email address")) -}}
-{{- $username := promptStringOnce . "username" (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" "text" "[CONFIG]: Please enter your username")) -}}
+{{- $email := promptStringOnce . "email" (printf "%s %s %s. %s %s"
+        (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" "text"
+    "[CONFIG]:"))
+    "Please enter your"
+        (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" (list "bold" "italic") "text"
+    "email address"))
+    "It will be used in"
+        (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" (list "bold" "italic") "text"
+    "git, ssh-keygen"))
+) -}}
+{{- $detected_username := "" -}}
+{{- if eq .chezmoi.os "windows" -}}
+    {{- $detected_username = env "USERNAME" | default "unknown" -}}
+{{- else -}}
+    {{- $detected_username = env "USER" | default "unknown" -}}
+{{- end -}}
+{{- $username_input := promptStringOnce . "username" (printf "%s %s %s %s %s. %s"
+        (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold"
+    "text" "[CONFIG]:"))
+    "Please enter your"
+        (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" (list "bold" "italic")
+    "text" "username."))
+    "Detected username:"
+        (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" (list "bold" "italic") "text"
+    $detected_username))
+    "Leave the prompt blank to use the detected username."
+) -}}
+{{- $username := $username_input | default $detected_username -}}
 
 {{/* OS & WSL detection */}}
 {{- $osid := .chezmoi.os -}}
 {{- if (and (hasKey .chezmoi "osRelease") (hasKey .chezmoi.osRelease "id")) -}}
     {{- $osid = printf "%s-%s" $osid .chezmoi.osRelease.id -}}
-    {{- writeToStdout (
-        includeTemplate "colorize.tmpl" (dict "style" (list "dim" "italic")
-        "text" (printf "[INFO]: OS detected as %s\n" $osid)
-        )
+    {{- writeToStdout (printf "%s %s\n"
+            (includeTemplate "colorize.tmpl" (dict "style" (list "dim" "italic") "text"
+        "[INFO]: OS detected as"))
+            (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "italic" "text"
+        $osid))
     ) -}}
 {{- end -}}
 {{- $is_wsl := (and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) -}}
 {{- if $is_wsl -}}
-    {{- writeToStdout (
-        includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold"
-        "text" "[WSL]: Running on WSL. GUI applications will not be installed and/or set up.\n"
-        )
+    {{- writeToStdout (printf "\n%s %s %s\n"
+            (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold" "text" 
+        "[WSL]:"))
+        "Running on WSL. GUI applications and Hyprland"
+            (includeTemplate "colorize.tmpl" (dict "color" "red" "style" (list "bold" "italic") "text"
+        "will not be installed and/or set up!"))
     ) -}}
 {{- end -}}
 
@@ -87,10 +119,14 @@
 {{- end -}}
 
 {{/* Interactive app selection */}}
-{{- writeToStdout (
-    includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold"
-    "text" (printf "Next, you will be asked if you want to install or update several apps using the %s package manager.\n" $pacman_name)
-    )
+{{- writeToStdout (printf "\n%s %s %s %s %s\n"
+    "Next, you will be asked if you want to"
+        (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" "text"
+    "install or update"))
+    "several apps using the"
+        (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold" "text"
+    $pacman_name))
+    "package manager."
 ) -}}
 {{- $final_apps := dict -}}
 {{- range $id, $app := $apps -}}
@@ -135,12 +171,29 @@
         {{- if $installed_path -}}
 	    {{- $status = printf "found at %s" $installed_path -}}
 	{{- end -}}
-	{{- $msg := printf "App '%s' already exists (%s). Do you wish to UPDATE it (y/n)" $id $status -}}
-    {{- $msg = includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold" "text" (printf "[APP]: %s" $msg)) -}}
+    {{- $msg := printf "%s %s %s (%s). %s %s %s"
+            (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold" "text"
+        "[APP]:"))
+            (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" (list "italic" "bold") "text"
+        $id))
+        "already exists"
+            (includeTemplate "colorize.tmpl" (dict "color" "yellow" "text"
+        $status))
+        "Do you wish to"
+            (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold" "text"
+        "UPDATE"))
+        "it (y/n)"
+    -}}
 	{{- $should_update = promptBoolOnce $ (printf "update_%s" $id) $msg -}}
     {{- else -}}
-        {{- $msg := printf "Install '%s' (y/n)" $id -}}
-        {{- $msg = includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" "text" (printf "[APP]: %s" $msg)) -}}
+        {{- $msg := printf "%s %s %s"
+                (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold" "text"
+            "[APP]:"))
+            "Install"
+                (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" (list "italic" "bold") "text"
+            $id))
+            "(y/n)"
+        -}}
 	{{- $should_install = promptBoolOnce $ (printf "install_$s" $id) $msg -}}
     {{- end -}}
 
@@ -168,10 +221,15 @@
 	{{- $potential_gcm_path := printf "%s/../mingw64/bin/git-credential-manager.exe" (dir $git_path_wsl) -}}
 	{{- if (stat $potential_gcm_path) -}}
 	    {{- $gcm_path = $potential_gcm_path -}}
-	    {{- writeToStdout (
-            includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold"
-            "text" (printf "[WSL]: Using Windows Git Credential manager at %s\n" $gcm_path)
-            )
+	    {{- writeToStdout (printf "%s %s %s %s %s\n"
+                (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold" "text"
+            "[WSL]:"))
+            "Using"
+                (includeTemplate "colorize.tmpl" (dict "style" "bold" "text"
+            "Windows' Git Credential Manager"))
+            "at"
+                (includeTemplate "colorize.tmpl" (dict "style" (list "bold" "italic") "text"
+            $gcm_path))
         ) -}}
 	{{- end -}}
     {{- end -}}
@@ -204,3 +262,18 @@
 ### CHEZMOI ###
 ###############
 progress = true
+
+
+{{- /* .chezmoi.toml done */ -}}
+{{- writeToStdout (printf "\n%s %s %s! %s %s %s\n"
+        (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" "bold" "text"
+    "[CONFIG]:"))
+    "Configuration initialization (.chezmoi.toml)"
+        (includeTemplate "colorize.tmpl" (dict "color" "green" "style" "bold" "text"
+    "completed successfully"))
+    "Run"
+        (includeTemplate "colorize.tmpl" (dict "color" "cyan" "style" (list "bold" "italic") "text"
+    "chezmoi apply"))
+    "to apply the configuration."
+) -}}
+
