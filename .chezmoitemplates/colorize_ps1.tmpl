@@ -41,7 +41,7 @@ if ($ANSI_SUPPORTED) {
 
     $global:BOLD="${E}1m"
     $global:DIM="${E}2m"
-$global:NO_BOLD="${E}22m"; $global:NO_DIM="${E}22m"
+    $global:NO_BOLD="${E}22m"; $global:NO_DIM="${E}22m"
 
     $global:ITALIC="${E}3m"; $global:NO_ITALIC="${E}23m"
     $global:UNDERLINE="${E}4m"; $global:NO_UNDERLINE="${E}24m"
@@ -53,7 +53,7 @@ $global:NO_BOLD="${E}22m"; $global:NO_DIM="${E}22m"
     $global:INVERTED="${E}7m"; $global:NO_INVERTED="${E}27m"
 } else {
     # no ANSI support
-    $codes = @('NC', 'BLACK', 'BBLACK', 'BLACKBG', 'RED', 'BRED', 'REDBG', 'GREEN', 'BGREEN', 'GREENBG', 'YELLOW', 'BYELLOW', 'YELLOWBG', 'BLUE', 'BBLUE', 'BLUEBG', 'PURPLE', 'BPURPLE', 'PURPLEBG', 'CYAN', 'BCYAN', 'CYANBG', 'WHITE', 'BWHITE', 'WHITEBG', 'NO_COLOR', 'NO_BG', 'REGULAR', 'BOLD', 'NO_BOLD', 'DIM', 'NO_DIM', 'ITALIC', 'NO_ITALIC', 'UNDERLINE', 'NO_UNDERLINE', 'SLOW_BLINK', 'RAPID_BLINK', 'NO_BLINK', 'INVERTED', 'NO_INVERTED',)
+    $codes = @('NC', 'BLACK', 'BBLACK', 'BLACKBG', 'RED', 'BRED', 'REDBG', 'GREEN', 'BGREEN', 'GREENBG', 'YELLOW', 'BYELLOW', 'YELLOWBG', 'BLUE', 'BBLUE', 'BLUEBG', 'PURPLE', 'BPURPLE', 'PURPLEBG', 'CYAN', 'BCYAN', 'CYANBG', 'WHITE', 'BWHITE', 'WHITEBG', 'NO_COLOR', 'NO_BG', 'REGULAR', 'BOLD', 'NO_BOLD', 'DIM', 'NO_DIM', 'ITALIC', 'NO_ITALIC', 'UNDERLINE', 'NO_UNDERLINE', 'SLOW_BLINK', 'RAPID_BLINK', 'NO_BLINK', 'INVERTED', 'NO_INVERTED')
     foreach ($code in $codes) {
         Set-Variable -Scope Global -Name $code -Value ''
     }
@@ -153,12 +153,12 @@ function Log-Success {
 }
 function Log-Warn {
     param([string]$Msg)
-    $styled = Parse-Styles "[b][byellow][INFO]:[reset] $Msg"
+    $styled = Parse-Styles "[b][byellow][WARNING]:[reset] $Msg"
     Write-Host $styled
 }
 function Log-Err {
     param([string]$Msg)
-    $styled = Parse-Styles "[b][bred][in][INFO]:[reset] $Msg"
+    $styled = Parse-Styles "[b][bred][in][ERROR]:[reset] $Msg"
     Write-Host $styled
 }
 {{ end }}
