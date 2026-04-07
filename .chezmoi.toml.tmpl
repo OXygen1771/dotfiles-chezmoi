@@ -189,7 +189,7 @@
     -}}
 	{{- $should_update = promptBoolOnce $ (printf "update_%s" $id) $msg -}}
     {{- else -}}
-        {{- $msg := printf "%s %s %s"
+        {{- $msg := printf "%s %s %s %s"
                 (includeTemplate "colorize.tmpl" (dict "color" "yellow" "style" "bold" "text"
             "[APP]:"))
             "Install"
