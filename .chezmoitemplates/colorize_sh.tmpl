@@ -1,0 +1,137 @@
+{{ define "colorize_sh.tmpl" }}
+# Colorize output
+set_colors()
+{
+    if [ -t 1 ]; then
+        E='\033[' # base escape code
+        NC="${E}0m" # regular style
+
+        # --- COLOR
+
+        # basic colors
+        BLACK="${E}30m"; RED="${E}31m"; GREEN="${E}32m"; YELLOW="${E}33m"
+        BLUE="${E}34m"; PURPLE="${E}35m"; CYAN="${E}36m"; WHITE="${E}37m"
+
+        # bright colors (for bold text)
+        BBLACK="${E}90m"; BRED="${E}91m"; BGREEN="${E}92m"; BYELLOW="${E}93m"
+        BBLUE="${E}94m"; BPURPLE="${E}95m"; BCYAN="${E}96m"; BWHITE="${E}97m"
+
+        # background colors
+        BLACKBG="${E}40m"; REDBG="${E}41m"; GREENBG="${E}42m"; YELLOWBG="${E}43m"
+        BLUEBG="${E}44m"; PURPLEBG="${E}45m"; CYANBG="${E}46m"; WHITEBG="${E}47m"
+
+        NO_COLOR="${E}39m"
+        NO_BG="${E}49m"
+
+
+        # --- STYLE
+        REGULAR="${E}0m" # reset all styles!
+
+        BOLD="${E}1m"
+        DIM="${E}2m"
+        NO_BOLD="${E}22m"; NO_DIM="${E}22m"
+
+        ITALIC="${E}3m"; NO_ITALIC="${E}23m"
+        UNDERLINE="${E}4m"; NO_UNDERLINE="${E}24m"
+
+        SLOW_BLINK="${E}5m"
+        RAPID_BLINK="${E}6m"
+        NO_BLINK="${E}25m"
+
+        INVERTED="${E}7m"; NO_INVERTED="${E}27m"
+    else
+        # non-terminal
+        for var in NC BLACK BBLACK BLACKBG RED BRED REDBG GREEN BGREEN GREENBG YELLOW BYELLOW YELLOWBG BLUE BBLUE BLUEBG PURPLE BPURPLE PURPLEBG CYAN BCYAN CYANBG WHITE BWHITE WHITEBG NO_COLOR NO_BG REGULAR BOLD NO_BOLD DIM NO_DIM ITALIC NO_ITALIC UNDERLINE NO_UNDERLINE SLOW_BLINK RAPID_BLINK NO_BLINK INVERTED NO_INVERTED; do
+            declare -g $var=""
+        done
+    fi
+}
+set_colors
+
+
+# replaces tyle tags with ANSI escape sequences
+parse_styles() {
+    local str="$1"
+
+    # --- opening tags
+    str="${str//\[b\]/${BOLD}}"
+    str="${str//\[d\]/${DIM}}"
+    str="${str//\[i\]/${ITALIC}}"
+    str="${str//\[u\]/${UNDERLINE}}"
+    str="${str//\[sb\]/${SLOW_BLINK}}"
+    str="${str//\[rb\]/${RAPID_BLINK}}"
+    str="${str//\[in\]/${INVERTED}}"
+
+    str="${str//\[black\]/${BLACK}}"
+    str="${str//\[red\]/${RED}}"
+    str="${str//\[green\]/${GREEN}}"
+    str="${str//\[yellow\]/${YELLOW}}"
+    str="${str//\[blue\]/${BLUE}}"
+    str="${str//\[purple\]/${PURPLE}}"
+    str="${str//\[cyan\]/${CYAN}}"
+    str="${str//\[white\]/${WHITE}}"
+
+    str="${str//\[bblack\]/${BBLACK}}"
+    str="${str//\[bred\]/${BRED}}"
+    str="${str//\[bgreen\]/${BGREEN}}"
+    str="${str//\[byellow\]/${BYELLOW}}"
+    str="${str//\[bblue\]/${BBLUE}}"
+    str="${str//\[bpurple\]/${BPURPLE}}"
+    str="${str//\[bcyan\]/${BCYAN}}"
+    str="${str//\[bwhite\]/${BWHITE}}"
+
+    str="${str//\[blackbg\]/${BLACKBG}}"
+    str="${str//\[redbg\]/${REDBG}}"
+    str="${str//\[greenbg\]/${GREENBG}}"
+    str="${str//\[yellowbg\]/${YELLOWBG}}"
+    str="${str//\[bluebg\]/${BLUEBG}}"
+    str="${str//\[purplebg\]/${PURPLEBG}}"
+    str="${str//\[cyanbg\]/${CYANBG}}"
+    str="${str//\[whitebg\]/${WHITEBG}}"
+
+    # --- closing tags
+    str="${str//\[\/b\]/${NO_BOLD}}"
+    str="${str//\[\/d\]/${NO_DIM}}"
+    str="${str//\[\/i\]/${NO_ITALIC}}"
+    str="${str//\[\/u\]/${NO_UNDERLINE}}"
+    str="${str//\[\/sb\]/${NO_BLINK}}"
+    str="${str//\[\/rb\]/${NO_BLINK}}"
+    str="${str//\[\/in\]/${NO_INVERTED}}"
+
+    str="${str//\[\/black\]/${NO_COLOR}}"
+    str="${str//\[\/red\]/${NO_COLOR}}"
+    str="${str//\[\/green\]/${NO_COLOR}}"
+    str="${str//\[\/yellow\]/${NO_COLOR}}"
+    str="${str//\[\/blue\]/${NO_COLOR}}"
+    str="${str//\[\/purple\]/${NO_COLOR}}"
+    str="${str//\[\/cyan\]/${NO_COLOR}}"
+    str="${str//\[\/white\]/${NO_COLOR}}"
+
+    str="${str//\[\/bblack\]/${NO_COLOR}}"
+    str="${str//\[\/bred\]/${NO_COLOR}}"
+    str="${str//\[\/bgreen\]/${NO_COLOR}}"
+    str="${str//\[\/byellow\]/${NO_COLOR}}"
+    str="${str//\[\/bblue\]/${NO_COLOR}}"
+    str="${str//\[\/bpurple\]/${NO_COLOR}}"
+    str="${str//\[\/bcyan\]/${NO_COLOR}}"
+    str="${str//\[\/bwhite\]/${NO_COLOR}}"
+
+    str="${str//\[\/blackbg\]/${NO_BG}}"
+    str="${str//\[\/redbg\]/${NO_BG}}"
+    str="${str//\[\/greenbg\]/${NO_BG}}"
+    str="${str//\[\/yellowbg\]/${NO_BG}}"
+    str="${str//\[\/bluebg\]/${NO_BG}}"
+    str="${str//\[\/purplebg\]/${NO_BG}}"
+    str="${str//\[\/cyanbg\]/${NO_BG}}"
+    str="${str//\[\/whitebg\]/${NO_BG}}"
+
+    str="${str//\[reset\]/${NC}}"
+
+    echo -e "$str"
+}
+
+log_info() { echo -e "$(parse_styles "[b][bblue][INFO]:[reset] $1")"; }
+log_success() { echo -e "$(parse_styles "[b][bgreen][SUCCESS]:[reset] $1")"; }
+log_warn() { echo -e "$(parse_styles "[b][byellow][WARNING]:[reset] $1")"; }
+log_err() { echo -e "$(parse_styles "[b][bred][in][ERROR]:[reset] $1")"; }
+{{ end }}

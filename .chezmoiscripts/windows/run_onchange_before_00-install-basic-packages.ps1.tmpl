@@ -1,7 +1,4 @@
-function Log-Info ($msg) { Write-Host "[INFO] $msg" -ForegroundColor Cyan }
-function Log-Success ($msg) { Write-Host "[SUCCESS] $msg" -ForegroundColor Green }
-function Log-Warn ($msg) { Write-Host "[WARNING] $msg" -ForegroundColor Yellow }
-function Log-Error ($msg) { Write-Host "[ERROR] $msg" -ForegroundColor Red }
+{{ template "colorize_ps1.tmpl" }}
 
 {{ $apps := .apps | fromJson -}}
 
@@ -10,14 +7,14 @@ function Log-Error ($msg) { Write-Host "[ERROR] $msg" -ForegroundColor Red }
 # --- {{ $id }}
 {{ if $app.update -}}
     {{ if hasKey $app "update_windows" -}}
-        Log-Info "Updating {{ $id }} via its custom command:"
-	Log-Info "{{ $app.update_windows }}"
-	{{ $app.update_windows }}
-	Log-Success "{{ $id }} updated successfully!"
+        Log-Info "Updating [b][bcyan]{{ $id }}[reset] via its custom command:"
+	    Log-Info "[d][i]{{ $app.update_windows }}[reset]"
+        {{ $app.update_windows }}
+        Log-Success "[b][bcyan]{{ $id }}[reset] updated successfully!"
     {{ else if hasKey $app "winget" -}}
-    	Log-Info "Updating {{ $id }} via Winget:"
-	winget upgrade --id {{ $app.winget }} -e -i --accept-source-agreements --accept-package-agreements
-	Log-Success "{{ $id }} updated successfully!"
+    	Log-Info "Updating [b][bcyan]{{ $id }}[reset] via [b]winget[/b]:"
+        winget upgrade --id {{ $app.winget }} -e -i --accept-source-agreements --accept-package-agreements
+        Log-Success "[b][bcyan]{{ $id }}[reset] updated successfully!"
     {{ end -}}
 {{ else if $app.install -}}
     {{/* The app might be installed already! */}}
@@ -25,18 +22,18 @@ function Log-Error ($msg) { Write-Host "[ERROR] $msg" -ForegroundColor Red }
         # Check if it is already installed
 	if (!(Get-Command {{ $app.bin }} -ErrorAction SilentlyContinue))
 	{
-	    Log-Info "Installing {{ $id }} via its custom command:"
-	    Log-Info "{{ $app.update_windows }}"
+	    Log-Info "Installing [b][bcyan]{{ $id }}[reset] via its custom command:"
+	    Log-Info "[d][i]{{ $app.update_windows }}[reset]"
 	    {{ $app.install_windows }}
-	    Log-Success "{{ $id }} installed successfully!"
+	    Log-Success "[b][bcyan]{{ $id }}[reset] installed successfully!"
 	}
     {{ else if hasKey $app "winget" -}}
         $is_installed = winget list --id {{ $app.winget }} --accept-source-agreements --accept-package-agreements
 	if ($LASTTEXTCODE -ne 0)
 	{
-	    Log-Info "Installing {{ $id }} via Winget:"
+	    Log-Info "Installing [b][bcyan]{{ $id }}[reset] via Winget:"
 	    winget install --id {{ $app.winget }} -e -i --accept-source-agreements --accept-package-agreements
-	    Log-Success "{{ $id }} installed successfully!"
+	    Log-Success "[b][bcyan]{{ $id }}[reset] installed successfully!"
 	}
     {{ end -}}
 {{ end -}}
@@ -45,4 +42,4 @@ function Log-Error ($msg) { Write-Host "[ERROR] $msg" -ForegroundColor Red }
 
 Log-Success "All apps installed/updated successfully!"
 
-Log-Warn "Don't forget to restart your shell, its configuration may have updated!"
+Log-Warn "Don't forget to [b][byellow]restart your shell[reset], its configuration may have updated!"

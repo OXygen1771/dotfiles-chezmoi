@@ -1,47 +1,24 @@
 #!/bin/bash
-
-# Colorize output
-set_colors()
-{
-    if [ -t 1 ]; then
-        RED='\033[0;31m'
-        GREEN='\033[0;32m'
-        YELLOW='\033[1;33m'
-        BLUE='\033[0;34m'
-        NC='\033[0m'
-    else
-        RED=''
-        GREEN=''
-        YELLOW=''
-        BLUE=''
-        NC=''
-    fi
-}
-set_colors
-
-log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-log_warn() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
-log_err() { echo -e "${RED}[ERROR]${NC} $1"; }
+{{ template "colorize_sh.tmpl" }}
 
 {{ $apps := .apps | fromJson -}}
 
 {{ if (index $apps "neovim").is_installed -}}
-log_info "You chose to install neovim! However..."
-log_warn "Note that for proper treesitter support you MUST install tree-sitter-cli."
+log_info "You chose to install [b][bcyan]neovim[reset]! However..."
+log_warn "Note that for proper [b][i]treesitter[reset] support you [b][byellow]MUST[reset] install tree-sitter-cli."
 
 {{ if (index $apps "rustup").is_installed -}}
-log_info "Checking for rustup..."
+log_info "Checking for [b][bcyan]rustup[reset]..."
 if command -v {{ $apps.rustup.bin }} &> /dev/null;then
-    log_info "Found rustup! Checking for cargo..."
+    log_info "Found rustup! Checking for [b][bcyan]cargo[reset]..."
 	if command -v "cargo" &> /dev/null; then
-    	log_info "Found cargo! Installing tree-sitter-cli"
+    	log_info "Found [b][bcyan]cargo[reset]! Installing [b][bcyan]tree-sitter-cli[reset]"
     	cargo install --locked tree-sitter-cli
 	else
-        log_err "Could not find cargo! Have you installed rustup?"
+        log_err "Could not find [b][bcyan]cargo[reset]! Have you installed [b][bcyan]rustup[reset]? Perhaps you should [b][byellow]relaunch your shell[reset] if you installed [b][bcyan]rustup[reset] just now."
 	fi
 fi
 {{- else }}
-log_err "rustup not found! tree-sitter-cli probably won't be installed!"
+log_err "[b][bcyan]rustup[reset] not found! [b][bcyan]tree-sitter-cli[reset] probably [i]won't be installed[/i]!"
 {{- end }}
 {{- end }}

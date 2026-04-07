@@ -1,3 +1,5 @@
+{{ template "colorize_ps1.tmpl" }}
+
 $fonts = @(
     "JetBrainsMono",
     "NerdFontsSymbolsOnlyMono"
@@ -5,14 +7,14 @@ $fonts = @(
 
 if (!(Get-Module -ListAvailable -Name NerdFonts))
 {
-    Write-Host "NerdFonts PowerShell module needed to install fonts. Trying to install..." -ForegroundColor Cyan
+    Log-Info "[b][bcyan]NerdFonts[/bcyan] PowerShell module[/b] needed to install fonts. Trying to install..."
     
     if (!(Get-Command Install-PSResource -ErrorAction SilentlyContinue))
     {
         Install-Module -Name Microsoft.PowerShell.PSResourceGet -Force -Scope CurrentUser
     }
     Install-PSResource -Name NerdFonts
-    Write-Host "NerdFonts module installed!" -ForegroundColor Green
+    Log-Success "[b][bcyan]NerdFonts[reset] module installed!"
 }
 
 Import-Module -Name NerdFonts
@@ -23,20 +25,20 @@ foreach ($font in $fonts)
 {
     if ($installedFonts -contains $font -or $installedFonts -replace '\s', '' -contains $font)
     {
-        Write-Host "Font $font is already installed, skipping" -ForegroundColor Green
+        Log-Info "[d]Font [b][bcyan]$font[reset][d] is already installed, skipping[/d]"
         continue
     }
 
-    Write-Host "Installing font $font" -ForegroundColor Cyan
+    Log-Info "Installing font [b][bcyan]$font[reset]"
     try
     {
         Install-NerdFont -Name $font
-        Write-Host "Font $font installed successfully!" -ForegroundColor Green
+        Log-Success "Font [b][bcyan]$font[reset] installed successfully!"
     }
     catch
     {
-        Write-Host "Failed to install $font : $($_.Exception.Message)" -ForegroundColor Red
+        Log-Err "Failed to install [b][byellow]$font[reset] : [i]$($_.Exception.Message)[/i]"
     }
 }
 
-Write-Host "All fonts installed successfully!" -ForegroundColor Green
+Log-Success "All fonts installed successfully!"

@@ -1,4 +1,6 @@
-Write-Host "[INFO] Setting up ssh-agent service, you will see a prompt to elevate this (and only this!) script's permissions"
+{{ template "colorize_ps1.tmpl" }}
+
+Log-Info "Setting up [i]ssh-agent service[/i], you will see a prompt to [b][red]elevate this (and only this!) script's permissions[reset]"
 
 # Self-elevate the script if required
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator'))
@@ -20,15 +22,15 @@ if ($sshAgent)
         try
 	{
 	    powershell -Command "Start-Process powershell -Verb RunAs -ArgumentList 'Set-Service ssh-agent -StartupType Automatic; Start-Service ssh-agent'"
-	    Write-Host "[INFO] ssh-agent service started" -ForegroundColor Cyan
+	    Log-Info "[i]ssh-agent service[/i] started"
 	}
 	catch
 	{
-	    Write-Warning "ssh-agent is not running. Try running 'Start-Service ssh-agent' as an administrator"
+	    Log-Warn "[i]ssh-agent[/i] is [b][red]not running[reset]. Try running [b][i]Start-Service ssh-agent[reset] as [b]an administrator[/b]"
 	}
     }
 }
 
-Write-Host "[INFO] This window will be closed automatically in 3 seconds"
+Log-Info "This window will be closed automatically in [sb]3 seconds[/sb]"
 Start-Sleep 3
 Exit

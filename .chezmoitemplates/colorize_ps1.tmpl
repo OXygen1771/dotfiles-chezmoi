@@ -1,0 +1,164 @@
+{{ define "colorize_ps1.tmpl" }}
+
+# check for ANSI support (i.e. is this executed in Windows Terminal or PowerShell 7 or greater
+function Test-ANSISupport {
+    if ($env:WT_SESSION -or $Host.Name -eq 'Windows Terminal') {
+        return $true
+    }
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        return $true
+    }
+
+    return $false
+}
+
+$global:ANSI_SUPPORTED = Test-ANSISupport
+
+if ($ANSI_SUPPORTED) {
+    $global:E = "`e[" # base escape code
+    $global:NC = "${E}0m" # regular style
+
+    # --- COLOR
+
+    # basic colors
+    $global:BLACK="${E}30m"; $global:RED="${E}31m"; $global:GREEN="${E}32m"; $global:YELLOW="${E}33m"
+    $global:BLUE="${E}34m"; $global:PURPLE="${E}35m"; $global:CYAN="${E}36m"; $global:WHITE="${E}37m"
+
+    # bright colors (for bold text)
+    $global:BBLACK="${E}90m"; $global:BRED="${E}91m"; $global:BGREEN="${E}92m"; $global:BYELLOW="${E}93m"
+    $global:BBLUE="${E}94m"; $global:BPURPLE="${E}95m"; $global:BCYAN="${E}96m"; $global:BWHITE="${E}97m"
+
+    # background colors
+    $global:BLACKBG="${E}40m"; $global:REDBG="${E}41m"; $global:GREENBG="${E}42m"; $global:YELLOWBG="${E}43m"
+    $global:BLUEBG="${E}44m"; $global:PURPLEBG="${E}45m"; $global:CYANBG="${E}46m"; $global:WHITEBG="${E}47m"
+
+    $global:NO_COLOR="${E}39m"
+    $global:NO_BG="${E}49m"
+
+
+    # --- STYLE
+    $global:REGULAR="${E}0m" # reset all styles!
+
+    $global:BOLD="${E}1m"
+    $global:DIM="${E}2m"
+$global:NO_BOLD="${E}22m"; $global:NO_DIM="${E}22m"
+
+    $global:ITALIC="${E}3m"; $global:NO_ITALIC="${E}23m"
+    $global:UNDERLINE="${E}4m"; $global:NO_UNDERLINE="${E}24m"
+
+    $global:SLOW_BLINK="${E}5m"
+    $global:RAPID_BLINK="${E}6m"
+    $global:NO_BLINK="${E}25m"
+
+    $global:INVERTED="${E}7m"; $global:NO_INVERTED="${E}27m"
+} else {
+    # no ANSI support
+    $codes = @('NC', 'BLACK', 'BBLACK', 'BLACKBG', 'RED', 'BRED', 'REDBG', 'GREEN', 'BGREEN', 'GREENBG', 'YELLOW', 'BYELLOW', 'YELLOWBG', 'BLUE', 'BBLUE', 'BLUEBG', 'PURPLE', 'BPURPLE', 'PURPLEBG', 'CYAN', 'BCYAN', 'CYANBG', 'WHITE', 'BWHITE', 'WHITEBG', 'NO_COLOR', 'NO_BG', 'REGULAR', 'BOLD', 'NO_BOLD', 'DIM', 'NO_DIM', 'ITALIC', 'NO_ITALIC', 'UNDERLINE', 'NO_UNDERLINE', 'SLOW_BLINK', 'RAPID_BLINK', 'NO_BLINK', 'INVERTED', 'NO_INVERTED',)
+    foreach ($code in $codes) {
+        Set-Variable -Scope Global -Name $code -Value ''
+    }
+}
+
+function Parse-Styles {
+    param([string]$Text)
+
+    $str = $Text
+
+    # --- opening tags
+    $str = $str -replace '\[b\]', $global:BOLD
+    $str = $str -replace '\[d\]', $global:DIM
+    $str = $str -replace '\[i\]', $global:ITALIC
+    $str = $str -replace '\[u\]', $global:UNDERLINE
+    $str = $str -replace '\[sb\]', $global:SLOW_BLINK
+    $str = $str -replace '\[rb\]', $global:RAPID_BLINK
+    $str = $str -replace '\[in\]', $global:INVERTED
+
+    $str = $str -replace '\[black\]', $global:BLACK
+    $str = $str -replace '\[red\]', $global:RED
+    $str = $str -replace '\[green\]', $global:GREEN
+    $str = $str -replace '\[yellow\]', $global:YELLOW
+    $str = $str -replace '\[blue\]', $global:BLUE
+    $str = $str -replace '\[purple\]', $global:PURPLE
+    $str = $str -replace '\[cyan\]', $global:CYAN
+    $str = $str -replace '\[white\]', $global:WHITE
+
+    $str = $str -replace '\[bblack\]', $global:BBLACK
+    $str = $str -replace '\[bred\]', $global:BRED
+    $str = $str -replace '\[bgreen\]', $global:BGREEN
+    $str = $str -replace '\[byellow\]', $global:BYELLOW
+    $str = $str -replace '\[bblue\]', $global:BBLUE
+    $str = $str -replace '\[bpurple\]', $global:BPURPLE
+    $str = $str -replace '\[bcyan\]', $global:BCYAN
+    $str = $str -replace '\[bwhite\]', $global:BWHITE
+
+    $str = $str -replace '\[blackbg\]', $global:BLACKBG
+    $str = $str -replace '\[redbg\]', $global:REDBG
+    $str = $str -replace '\[greenbg\]', $global:GREENBG
+    $str = $str -replace '\[yellowbg\]', $global:YELLOWBG
+    $str = $str -replace '\[bluebg\]', $global:BLUEBG
+    $str = $str -replace '\[purplebg\]', $global:PURPLEBG
+    $str = $str -replace '\[cyanbg\]', $global:CYANBG
+    $str = $str -replace '\[whitebg\]', $global:WHITEBG
+
+    # --- closing tags
+    $str = $str -replace '\[\/b\]', $global:NO_BOLD
+    $str = $str -replace '\[\/d\]', $global:NO_DIM
+    $str = $str -replace '\[\/i\]', $global:NO_ITALIC
+    $str = $str -replace '\[\/u\]', $global:NO_UNDERLINE
+    $str = $str -replace '\[\/sb\]', $global:NO_BLINK
+    $str = $str -replace '\[\/rb\]', $global:NO_BLINK
+    $str = $str -replace '\[\/in\]', $global:NO_INVERTED
+
+    $str = $str -replace '\[\/black\]', $global:NO_COLOR
+    $str = $str -replace '\[\/red\]', $global:NO_COLOR
+    $str = $str -replace '\[\/green\]', $global:NO_COLOR
+    $str = $str -replace '\[\/yellow\]', $global:NO_COLOR
+    $str = $str -replace '\[\/blue\]', $global:NO_COLOR
+    $str = $str -replace '\[\/purple\]', $global:NO_COLOR
+    $str = $str -replace '\[\/cyan\]', $global:NO_COLOR
+    $str = $str -replace '\[\/white\]', $global:NO_COLOR
+
+    $str = $str -replace '\[\/bblack\]', $global:NO_COLOR
+    $str = $str -replace '\[\/bred\]', $global:NO_COLOR
+    $str = $str -replace '\[\/bgreen\]', $global:NO_COLOR
+    $str = $str -replace '\[\/byellow\]', $global:NO_COLOR
+    $str = $str -replace '\[\/bblue\]', $global:NO_COLOR
+    $str = $str -replace '\[\/bpurple\]', $global:NO_COLOR
+    $str = $str -replace '\[\/bcyan\]', $global:NO_COLOR
+    $str = $str -replace '\[\/bwhite\]', $global:NO_COLOR
+
+    $str = $str -replace '\[\/blackbg\]', $global:NO_BG
+    $str = $str -replace '\[\/redbg\]', $global:NO_BG
+    $str = $str -replace '\[\/greenbg\]', $global:NO_BG
+    $str = $str -replace '\[\/yellowbg\]', $global:NO_BG
+    $str = $str -replace '\[\/bluebg\]', $global:NO_BG
+    $str = $str -replace '\[\/purplebg\]', $global:NO_BG
+    $str = $str -replace '\[\/cyanbg\]', $global:NO_BG
+    $str = $str -replace '\[\/whitebg\]', $global:NO_BG
+
+    $str = $str -replace '\[reset\]', $global:NC
+
+    return $str
+}
+
+function Log-Info {
+    param([string]$Msg)
+    $styled = Parse-Styles "[b][bblue][INFO]:[reset] $Msg"
+    Write-Host $styled
+}
+function Log-Success {
+    param([string]$Msg)
+    $styled = Parse-Styles "[b][bgreen][SUCCESS]:[reset] $Msg"
+    Write-Host $styled
+}
+function Log-Warn {
+    param([string]$Msg)
+    $styled = Parse-Styles "[b][byellow][INFO]:[reset] $Msg"
+    Write-Host $styled
+}
+function Log-Err {
+    param([string]$Msg)
+    $styled = Parse-Styles "[b][bred][in][INFO]:[reset] $Msg"
+    Write-Host $styled
+}
+{{ end }}

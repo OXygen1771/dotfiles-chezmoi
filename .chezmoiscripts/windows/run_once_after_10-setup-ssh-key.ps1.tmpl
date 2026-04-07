@@ -1,15 +1,17 @@
+{{ template "colorize_ps1.tmpl" }}
+
 $sshDir = "$HOME\.ssh"
 if (!(Test-Path "$sshDir\id_ed25519"))
 {
-    Write-Host "Generating an SSH keypair" -ForegroundColor Cyan
+    Log-Info "Generating an [i]SSH keypair[/i]"
     if (!(Test-Path $sshDir))
     { New-Item -ItemType Directory -Path $sshDir }
 
     # Generate an ed25519 keypair with a comment: username-mail@domain.name
     # It will prompt for a passphrase for the key
-    Write-Host "Please enter a secure passphrase for your SSH key and remember it" -ForegroundColor Cyan
+    Log-Info "Please enter a [b][bwhite]secure passphrase[reset] for your SSH key and remember it"
     ssh-keygen -t ed25519 -C "{{ .username }}-{{ .email }}" -f "$sshDir\id_ed25519"
-    Write-Host "SSH key generated successfully" -ForegroundColor Green
-    Write-Host "Don't forget to add this public key to your GitHub (or other) account:" -ForegroundColor Cyan
+    Log-Success "SSH key generated successfully"
+    Log-Info "Don't forget to add [b][byellow]this public key[reset] to your GitHub (or other) account:"
     Get-Content "$sshDir\id_ed25519.pub"
 }
