@@ -1,14 +1,9 @@
----@diagnostic disable-next-line
-{{ $apps := .apps | fromJson -}}
-
 return {
     "mfussenegger/nvim-lint",
     opts = {
         linters_by_ft = {
             python = {
-                {{ if (index $apps "uv").is_installed -}}
                 "ruff",
-                {{- end }}
             },
             c = { "clang-tidy" },
             cpp = { "clang-tidy" },

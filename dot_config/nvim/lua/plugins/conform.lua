@@ -1,18 +1,12 @@
----@diagnostic disable-next-line
-{{ $apps := .apps | fromJson -}}
-
 return {
     "stevearc/conform.nvim",
     opts = {
         formatters_by_ft = {
             python = {
-                ---@diagnostic disable-next-line
-                {{ if (index $apps "uv").is_installed -}}
                 -- fix all auto-fixable errors
                 "ruff_fix",
                 "ruff_format",
                 "ruff_organize_imports",
-                {{- end }}
             },
             c = { "clang-format" },
             cpp = { "clang-format" },
