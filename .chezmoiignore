@@ -39,15 +39,14 @@ Documents/**
 # Ignore nvim config if not installed
 {{ if not (index $apps "neovim").is_installed }}
 .config/nvim/**
-{{ else }}
-# Ignore uv, ruff and ty specific neovim configs if not installed
-# but nvim is installed
-{{ if not (index $apps "uv").is_installed }}
-.config/nvim/lua/plugins/lsp/python*
-{{ end }}
 {{ end }}
 
 # Ignore starship config if not installed
 {{ if not (index $apps "starship").is_installed }}
 .config/starship.toml
+{{ end }}
+
+# Ignore bat config if not installed
+{{ if not (index $apps "bat").is_installed }}
+.config/bat/**
 {{ end }}

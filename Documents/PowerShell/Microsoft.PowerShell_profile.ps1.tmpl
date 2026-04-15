@@ -12,7 +12,9 @@ $env:XDG_CONFIG_HOME = "$env:USERPROFILE/.config"
 {{ if (index $apps "bat").is_installed -}}
 if (Get-Command bat -ErrorAction SilentlyContinue)
 {
-    $env:PAGER = "bat"
+    $env:BAT_CONFIG_PATH = "$env:XDG_CONFIG_HOME/bat/config"
+    $env:BAT_CONFIG_DIR = "$env:XDG_CONFIG_HOME/bat"
+    $env:PAGER = "bat -plman"
 }
 {{- end }}
 
