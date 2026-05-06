@@ -1,23 +1,20 @@
+-- global lsp capabilities from config.lsp
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+
+capabilities.textDocument.hover = nil
+capabilities.textDocument.definition = nil
+capabilities.textDocument.references = nil
+capabilities.textDocument.documentSymbol = nil
+capabilities.textDocument.workspaceSymbol = nil
+capabilities.textDocument.rename = nil
+capabilities.textDocument.signatureHelp = nil
+
 vim.lsp.config("ruff", {
     cmd = { "ruff", "server" },
     filetypes = { "python" },
     root_markers = { "ruff.toml", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
 
-    -- restrain ruff to work nicely with ty
-    capabilities = {
-        -- textDocumentSync = false,
-        -- completionProvider = false,
-        hoverProvider = false,
-        definitionProvider = false,
-        referencesProvider = false,
-        documentSymbolProvider = false,
-        workspaceSymbolProvider = false,
-        renameProvider = false,
-        signatureHelpProvider = false,
-
-        codeActionProvider = true,
-        executeCommandProvider = { commands = { "ruff.applyAutofix", "ruff.applyOrganizeImports", "ruff.applyFormat" } },
-    },
+    capabilities = capabilities,
 
     settings = {
         lint = { enable = true },
