@@ -23,6 +23,9 @@
     editor = nvim
     {{- end }}
 
+[pull]
+    rebase = true
+
 [credential]
     {{- if eq .chezmoi.os "windows" }}
     helper = manager
