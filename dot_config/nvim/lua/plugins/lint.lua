@@ -26,8 +26,13 @@ return {
     },
 
     config = function(_, opts)
-        vim.tbl_deep_extend("force", require("lint").linters_by_ft, opts.linters_by_ft)
-        vim.tbl_deep_extend("force", require("lint").linters, opts.linters)
+        local lint = require("lint")
+
+        vim.tbl_deep_extend("force", lint.linters_by_ft, opts.linters_by_ft)
+        vim.tbl_deep_extend("force", lint.linters, opts.linters)
+
+        -- disable builtin markdown linter
+        lint.linters_by_ft.markdown = nil
 
         -- lint on save
         vim.api.nvim_create_autocmd({ "BufWritePost" }, {

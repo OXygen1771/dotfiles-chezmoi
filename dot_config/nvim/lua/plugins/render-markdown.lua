@@ -6,5 +6,9 @@ return {
     },
     ft = { "markdown" },
 
-    opts = {},
+    opts = {
+        completions = {
+            lsp = { enabled = true },
+        },
+    },
 }
