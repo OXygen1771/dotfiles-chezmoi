@@ -12,7 +12,7 @@ capabilities.textDocument.signatureHelp = nil
 vim.lsp.config("ruff", {
     cmd = { "ruff", "server" },
     filetypes = { "python" },
-    root_markers = { "ruff.toml", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
+    root_markers = { "pyproject.toml", ".git", "ruff.toml", "setup.py", "setup.cfg", "requirements.txt" },
 
     capabilities = capabilities,
 
